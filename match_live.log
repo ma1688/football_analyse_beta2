@@ -1,0 +1,107 @@
+2024-06-28 11:45:57,398 - __main__ - ERROR - Error occurred while parsing HTML content: Expected object of type bytes or bytearray, got: <class 'str'>
+2024-06-28 11:45:57,398 - __main__ - ERROR - Selector is None.
+2024-06-28 11:47:43,832 - __main__ - ERROR - Error occurred while parsing HTML content: XPath error: Missing closing curly brace in //tbody/tr/td[1]/text(0
+2024-06-28 12:04:25,501 - __main__ - ERROR - Error occurred while parsing HTML content: list index out of range
+2024-06-28 12:19:14,806 - __main__ - ERROR - Error occurred while parsing HTML content: 'list' object has no attribute 'delete'
+2024-06-28 12:37:31,304 - __main__ - ERROR - f_id is None.
+2024-06-28 12:37:31,314 - __main__ - ERROR - f_id is None.
+2024-06-28 12:38:04,372 - __main__ - ERROR - f_id is None.
+2024-06-28 12:38:04,381 - __main__ - ERROR - f_id is None.
+2024-06-28 12:43:19,582 - __main__ - ERROR - Error occurred while parsing HTML content: 'NoneType' object has no attribute 'strip'
+2024-06-28 12:51:15,091 - __main__ - ERROR - Error occurred while parsing HTML content: 'NoneType' object is not iterable
+2024-06-28 12:57:59,711 - __main__ - ERROR - Error occurred while parsing HTML content: object of type 'NoneType' has no len()
+2024-06-28 12:58:18,002 - __main__ - ERROR - Error occurred while parsing HTML content: object of type 'NoneType' has no len()
+2024-06-28 13:07:09,743 - __main__ - ERROR - Error occurred while parsing HTML content: invalid literal for int() with base 10: ' '
+2024-06-28 13:07:26,146 - __main__ - ERROR - Error occurred while parsing HTML content: invalid literal for int() with base 10: ''
+2024-06-28 13:07:41,537 - __main__ - ERROR - Error occurred while parsing HTML content: invalid literal for int() with base 10: ''
+2024-06-28 13:07:59,545 - __main__ - ERROR - Error occurred while parsing HTML content: invalid literal for int() with base 10: ' '
+2024-06-28 13:10:29,448 - __main__ - ERROR - Error occurred while parsing HTML content: replace() argument 1 must be str, not None
+2024-06-28 16:05:55,532 - __main__ - ERROR - [SSL: UNSUPPORTED_PROTOCOL] unsupported protocol (_ssl.c:1000)
+2024-06-28 16:05:55,533 - __main__ - ERROR - Error occurred while parsing HTML content: Expected object of type bytes or bytearray, got: <class 'NoneType'>
+2024-06-28 16:05:55,533 - __main__ - ERROR - Selector is None.
+2024-06-28 16:06:09,142 - __main__ - ERROR - [SSL: UNSUPPORTED_PROTOCOL] unsupported protocol (_ssl.c:1000)
+2024-06-28 16:06:09,143 - __main__ - ERROR - Error occurred while parsing HTML content: Expected object of type bytes or bytearray, got: <class 'NoneType'>
+2024-06-28 16:06:09,143 - __main__ - ERROR - Selector is None.
+2024-06-28 16:06:28,502 - __main__ - ERROR - Error occurred while parsing HTML content: XPath error: Invalid expression in //tbody/tr[]/td[1]/text()
+2024-06-28 16:10:56,634 - __main__ - ERROR - Error occurred while parsing HTML content: 'NoneType' object has no attribute 'strip'
+2024-06-28 16:13:19,446 - __main__ - ERROR - Error occurred while parsing HTML content: 'list' object has no attribute 'strip'
+2024-06-28 16:22:46,987 - __main__ - ERROR - Error occurred while parsing HTML content: argument of type 'NoneType' is not iterable
+2024-06-28 16:24:42,496 - __main__ - ERROR - Error occurred while parsing HTML content: 'in <string>' requires string as left operand, not NoneType
+2024-06-28 16:25:45,863 - __main__ - ERROR - Error occurred while parsing HTML content: argument of type 'NoneType' is not iterable
+2024-06-28 16:46:35,155 - __main__ - ERROR - Error occurred while parsing HTML content: object of type 'NoneType' has no len()
+2024-06-29 14:01:29,726 - __main__ - ERROR - Error occurred while parsing HTML content: name 'p_id' is not defined
+2024-06-30 20:20:04,422 - __main__ - ERROR - Error occurred while parsing HTML content: expected string or bytes-like object, got 'list'
+2024-06-30 20:21:10,296 - __main__ - ERROR - Error occurred while parsing HTML content: expected string or bytes-like object, got 'list'
+2024-06-30 20:43:59,011 - __main__ - ERROR - Error occurred while parsing HTML content: nothing to repeat at position 19
+2024-06-30 20:56:52,425 - __main__ - ERROR - Error occurred while parsing HTML content: no such group
+2024-06-30 20:57:49,790 - __main__ - ERROR - Error occurred while parsing HTML content: no such group
+2024-06-30 20:58:41,800 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,800 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,800 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,801 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,802 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,802 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,802 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,802 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-06-30 20:58:41,802 - __main__ - ERROR - Error occurred while parsing HTML content for key '状态': no such group
+2024-07-01 13:35:28,894 - __main__ - ERROR - Error occurred while parsing HTML content: name 'PrettyTable' is not defined
+2024-07-01 15:15:52,372 - __main__ - INFO - {'fid': '1131975', '场次': '1', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-28 23:00', '状态': '完', '主队': '国际图尔库', '比分': '2 - 0', '客队': '瓦萨', '让球': None}
+2024-07-01 15:15:52,378 - __main__ - INFO - {'fid': '1133378', '场次': '2', '赛事': '芬甲', '轮次': '第13轮', '比赛时间': '06-28 23:30', '状态': '完', '主队': '耶尔文佩', '比分': '0 - 0', '客队': '卡帕', '让球': None}
+2024-07-01 15:15:52,378 - __main__ - INFO - {'fid': '1126651', '场次': '3', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '布兰', '比分': '0 - 0', '客队': '斯托姆加斯特', '让球': '-1'}
+2024-07-01 15:15:52,379 - __main__ - INFO - {'fid': '1126653', '场次': '4', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '奥德', '比分': '0 - 1', '客队': '克里斯蒂安松', '让球': None}
+2024-07-01 15:15:52,379 - __main__ - INFO - {'fid': '1126654', '场次': '5', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '萨尔普斯堡', '比分': '1 - 0', '客队': '博德闪耀', '让球': None}
+2024-07-01 15:15:52,379 - __main__ - INFO - {'fid': '1131976', '场次': '6', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': 'AC奥卢', '比分': '0 - 0', '客队': '库普斯', '让球': None}
+2024-07-01 15:15:52,379 - __main__ - INFO - {'fid': '1127617', '场次': '7', '赛事': '瑞典甲', '轮次': '第14轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '赫尔辛堡', '比分': '0 - 0', '客队': '瓦尔贝里', '让球': None}
+2024-07-01 15:15:52,379 - __main__ - INFO - {'fid': '1127615', '场次': '8', '赛事': '瑞典甲', '轮次': '第14轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '布莱格', '比分': '1 - 1', '客队': '耶夫勒', '让球': '-1'}
+2024-07-01 15:15:52,379 - __main__ - INFO - {'fid': '1126487', '场次': '9', '赛事': '冰岛超', '轮次': '第12轮', '比赛时间': '06-29 02:00', '状态': '完', '主队': 'HK科帕沃于尔', '比分': '0 - 0', '客队': 'KA阿克雷里', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1127878', '场次': '10', '赛事': '爱超', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '邓多克', '比分': '0 - 2', '客队': '沃特福德FC', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1127877', '场次': '11', '赛事': '爱超', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '德里城', '比分': '2 - 1', '客队': '德罗赫达联', '让球': '-2'}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1127881', '场次': '12', '赛事': '爱超', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '圣帕特里克竞技', '比分': '0 - 0', '客队': '波希米亚人', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1127879', '场次': '13', '赛事': '爱超', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '谢尔伯恩', '比分': '2 - 0', '客队': '戈尔韦联', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1127880', '场次': '14', '赛事': '爱超', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '斯莱戈流浪者', '比分': '0 - 0', '客队': '沙姆洛克流浪者', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1128058', '场次': '15', '赛事': '爱甲', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '科夫漫步者', '比分': '1 - 1', '客队': '都柏林大学', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1128057', '场次': '16', '赛事': '爱甲', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '阿斯隆城', '比分': '1 - 0', '客队': '条约联', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1128061', '场次': '17', '赛事': '爱甲', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '朗福德城', '比分': '0 - 1', '客队': '费恩哈普', '让球': None}
+2024-07-01 15:15:52,382 - __main__ - INFO - {'fid': '1128059', '场次': '18', '赛事': '爱甲', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '科克城', '比分': '1 - 0', '客队': '布雷流浪者', '让球': '-1'}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1128060', '场次': '19', '赛事': '爱甲', '轮次': '第22轮', '比赛时间': '06-29 02:45', '状态': '完', '主队': '凯里', '比分': '0 - 0', '客队': '韦克斯福德', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1126655', '场次': '20', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 03:15', '状态': '完', '主队': '特罗姆瑟', '比分': '0 - 1', '客队': '莫尔德', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1126489', '场次': '21', '赛事': '冰岛超', '轮次': '第12轮', '比赛时间': '06-29 03:15', '状态': '完', '主队': 'FH哈夫纳夫约杜尔', '比分': '1 - 0', '客队': '贝雷达比历克', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1126488', '场次': '22', '赛事': '冰岛超', '轮次': '第12轮', '比赛时间': '06-29 03:15', '状态': '完', '主队': 'IA阿克拉内斯', '比分': '2 - 1', '客队': '瓦路尔', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1144281', '场次': '23', '赛事': '美洲杯', '轮次': '分组赛', '比赛时间': '06-29 06:00', '状态': '完', '主队': '哥伦比亚', '比分': '1 - 0', '客队': '哥斯达黎加', '让球': '-1'}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1135583', '场次': '24', '赛事': '美职', '轮次': '第21轮', '比赛时间': '06-29 07:30', '状态': '完', '主队': '纽约城', '比分': '3 - 0', '客队': '奥兰多城', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1144282', '场次': '25', '赛事': '美洲杯', '轮次': '分组赛', '比赛时间': '06-29 09:00', '状态': '完', '主队': '巴拉圭', '比分': '0 - 3', '客队': '巴西', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1136076', '场次': '26', '赛事': 'J1联赛', '轮次': '第21轮', '比赛时间': '06-29 13:00', '状态': '完', '主队': '北海道札幌冈萨多', '比分': '0 - 0', '客队': '新泻天鹅', '让球': None}
+2024-07-01 15:15:52,383 - __main__ - INFO - {'fid': '1131727', '场次': '27', '赛事': 'K1联赛', '轮次': '第20轮', '比赛时间': '06-29 17:00', '状态': '完', '主队': '金泉尚武', '比分': '0 - 0', '客队': '大邱FC', '让球': None}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1137093', '场次': '28', '赛事': 'J2联赛', '轮次': '第22轮', '比赛时间': '06-29 17:00', '状态': '完', '主队': '磐城', '比分': '0 - 1', '客队': '横滨FC', '让球': None}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1137095', '场次': '29', '赛事': 'J2联赛', '轮次': '第22轮', '比赛时间': '06-29 17:00', '状态': '完', '主队': '水户蜀葵', '比分': '1 - 0', '客队': '山口雷诺法', '让球': None}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1137094', '场次': '30', '赛事': 'J2联赛', '轮次': '第22轮', '比赛时间': '06-29 17:00', '状态': '完', '主队': '熊本深红', '比分': '2 - 0', '客队': '爱媛FC', '让球': None}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1131977', '场次': '31', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-29 17:00', '状态': '完', '主队': '塞伊奈约基', '比分': '2 - 0', '客队': '哈卡', '让球': '-1'}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1136077', '场次': '32', '赛事': 'J1联赛', '轮次': '第21轮', '比赛时间': '06-29 18:00', '状态': '完', '主队': '川崎前锋', '比分': '1 - 0', '客队': '广岛三箭', '让球': None}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1136078', '场次': '33', '赛事': 'J1联赛', '轮次': '第21轮', '比赛时间': '06-29 18:00', '状态': '完', '主队': '横滨水手', '比分': '1 - 2', '客队': '东京绿茵', '让球': '-1'}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1131728', '场次': '34', '赛事': 'K1联赛', '轮次': '第20轮', '比赛时间': '06-29 18:00', '状态': '完', '主队': '全北现代', '比分': '0 - 2', '客队': 'FC首尔', '让球': None}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1137099', '场次': '35', '赛事': 'J2联赛', '轮次': '第22轮', '比赛时间': '06-29 18:00', '状态': '完', '主队': '仙台七夕', '比分': '3 - 1', '客队': '枥木SC', '让球': '-1'}
+2024-07-01 15:15:52,384 - __main__ - INFO - {'fid': '1137096', '场次': '36', '赛事': 'J2联赛', '轮次': '第22轮', '比赛时间': '06-29 18:00', '状态': '完', '主队': '群马温泉', '比分': '1 - 0', '客队': '藤枝MYFC', '让球': None}
+2024-07-01 15:31:57,695 - __main__ - INFO - {'fid': '1131975', '场次': '1', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-28 23:00', '状态': '完', '主队': '国际图尔库', '比分': '2 - 0', '客队': '瓦萨', '让球': None}
+2024-07-01 15:32:48,625 - __main__ - INFO - {'fid': '1131975', '场次': '1', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-28 23:00', '状态': '完', '主队': '国际图尔库', '比分': '2 - 0', '客队': '瓦萨', '让球': None}
+2024-07-01 15:35:39,225 - __main__ - INFO - {'fid': '1131975', '场次': '1', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-28 23:00', '状态': '完', '主队': '国际图尔库', '比分': '2 - 0', '客队': '瓦萨', '让球': None}
+2024-07-01 15:35:39,226 - __main__ - INFO - {'fid': '1133378', '场次': '2', '赛事': '芬甲', '轮次': '第13轮', '比赛时间': '06-28 23:30', '状态': '完', '主队': '耶尔文佩', '比分': '0 - 0', '客队': '卡帕', '让球': None}
+2024-07-01 15:35:39,226 - __main__ - INFO - {'fid': '1126651', '场次': '3', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '布兰', '比分': '0 - 0', '客队': '斯托姆加斯特', '让球': '-1'}
+2024-07-01 15:35:39,226 - __main__ - INFO - {'fid': '1126653', '场次': '4', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '奥德', '比分': '0 - 1', '客队': '克里斯蒂安松', '让球': None}
+2024-07-01 15:35:39,226 - __main__ - INFO - {'fid': '1126654', '场次': '5', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '萨尔普斯堡', '比分': '1 - 0', '客队': '博德闪耀', '让球': None}
+2024-07-01 15:35:39,226 - __main__ - INFO - {'fid': '1131976', '场次': '6', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': 'AC奥卢', '比分': '0 - 0', '客队': '库普斯', '让球': None}
+2024-07-01 16:41:09,982 - __main__ - INFO - {'fid': '1131975', '场次': '1', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-28 23:00', '状态': '完', '主队': '国际图尔库', '比分': '2 - 0', '客队': '瓦萨', '让球': None}
+2024-07-01 16:41:09,984 - __main__ - INFO - {'fid': '1133378', '场次': '2', '赛事': '芬甲', '轮次': '第13轮', '比赛时间': '06-28 23:30', '状态': '完', '主队': '耶尔文佩', '比分': '0 - 0', '客队': '卡帕', '让球': None}
+2024-07-01 16:41:09,985 - __main__ - INFO - {'fid': '1126651', '场次': '3', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '布兰', '比分': '0 - 0', '客队': '斯托姆加斯特', '让球': '-1'}
+2024-07-01 16:41:09,985 - __main__ - INFO - {'fid': '1126653', '场次': '4', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '奥德', '比分': '0 - 1', '客队': '克里斯蒂安松', '让球': None}
+2024-07-01 16:41:09,985 - __main__ - INFO - {'fid': '1126654', '场次': '5', '赛事': '挪超', '轮次': '第12轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': '萨尔普斯堡', '比分': '1 - 0', '客队': '博德闪耀', '让球': None}
+2024-07-01 16:41:09,985 - __main__ - INFO - {'fid': '1131976', '场次': '6', '赛事': '芬超', '轮次': '第13轮', '比赛时间': '06-29 01:00', '状态': '完', '主队': 'AC奥卢', '比分': '0 - 0', '客队': '库普斯', '让球': None}
