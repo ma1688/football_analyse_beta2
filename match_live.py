@@ -23,13 +23,17 @@ logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
 # 创建一个handler，用于写入日志文件
 fh = logging.FileHandler('./match_live.log')
 fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
+ch = logging.FileHandler('./matches.log')
+ch.setLevel(logging.INFO)  # 设置handler级别为INFO
 
 # 定义handler的输出格式
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 fh.setFormatter(formatter)  # 为文件handler设置格式
+ch.setFormatter(formatter)  # 为控制台handler设置格式
 
 # 给logger添加handler
 logger.addHandler(fh)
+logger.addHandler(ch)
 
 # 设置基础配置的日志级别为ERROR
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')

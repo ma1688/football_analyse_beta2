@@ -1,4 +1,0 @@
-2024-07-21 21:40:03,008 - __main__ - ERROR - 'gbk' codec can't encode character '\u30fb' in position 179841: illegal multibyte sequence
-2024-07-21 21:41:12,100 - __main__ - ERROR - 'gbk' codec can't encode character '\ufffd' in position 50879: illegal multibyte sequence
-2024-07-21 21:41:43,792 - __main__ - ERROR - unknown error handler name 'utf-8'
-2024-07-21 21:41:57,732 - __main__ - ERROR - 'gbk' codec can't encode character '\u30fb' in position 179841: illegal multibyte sequence

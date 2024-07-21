@@ -150,19 +150,20 @@ def parse_html(selector):
         home_recent_data = selector.xpath(
             f'//div[{i}]/form/div[3]/table/tbody/tr').getall()
         save_recent_data(home_recent_data, 'home' if i == 1 else 'away')
-    save_recent_data(history_data, "history")
+    save_recent_data(history_data, "history", )
     print("\033[92m近期数据已经保存\033[0m")
     return home_rank_data, away_rank_data
 
 
-def save_recent_data(recent_data, name_type):
+def save_recent_data(recent_data, name_type, home_name, away_name):
     """
     保存近期比赛数据
+    :param away_name: 客队
+    :param home_name: 主队
     :param rounds:
     :param f_id:
     :param recent_data:
     :param name_type: 竞彩 or 北单
-    :param home: 主队
     :param league_type: 赛事类型
     :param away: 客队
     :return:
@@ -200,7 +201,7 @@ def save_recent_data(recent_data, name_type):
 
                     matchs_list_type = {
                         '赛事': league,
-                        '比赛日期': f'20{date}',
+                        '比赛日期': f'{date}',
                         '比赛': match_title,
                         '比分': score,
                         '盘口': handicap,
@@ -210,7 +211,7 @@ def save_recent_data(recent_data, name_type):
                         '大小': size
                     } if name_type in ["home", "away"] else {
                         '赛事': league,
-                        '比赛日期': f'20{date}',
+                        '比赛日期': f'{date}',
                         '比赛': match_title,
                         '比分': score,
                         '赛果': result,
@@ -223,6 +224,7 @@ def save_recent_data(recent_data, name_type):
                     matches.append(matchs_list_type)
         print(matches)
         matches_pd = pd.DataFrame(matches)
+        matches_pd.to_csv(f'{home_name}_{name_type}.csv', index=False, encoding='utf-8-sig')
 
     else:
         print("空数据")
@@ -252,7 +254,6 @@ def main_base_data(choose_list: list):
         sr_data = get_base_data(fid_value)
         parse_html(sr_data)
         time.sleep(1.68)
-
 
 #
 # if __name__ == '__main__':
