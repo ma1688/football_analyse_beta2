@@ -168,7 +168,7 @@ if __name__ == '__main__':
                         end_num = int(end_match)
                         for match in match_list:
                             if start_num <= int(match['场次']) <= end_num:
-                                print(match)
+                                logger.info(match)
                                 chose_list.append(match)
                 except ValueError:
                     logger.error(
