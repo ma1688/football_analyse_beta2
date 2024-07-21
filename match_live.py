@@ -14,6 +14,8 @@ import pymysql
 from parsel import Selector
 from prettytable import PrettyTable
 
+from base_data import main_base_data
+
 # 创建一个logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
@@ -213,7 +215,7 @@ if __name__ == '__main__':
             while True:
                 chose_list = []
                 match_list = select_data(selector)
-                insert_match_data_to_db(match_list)
+                # insert_match_data_to_db(match_list)
                 choose = input(f"请选择你想要的比赛场次范围(例如:1-8或1): ")
                 try:
                     # 输入'++'退出
@@ -234,7 +236,8 @@ if __name__ == '__main__':
                 except ValueError:
                     logger.error(
                         "输入的场次范围不正确，请重新输入。")
-                print(chose_list)
+                # print(chose_list)
+                main_base_data(chose_list)
         else:
             logger.error("Selector is None.")
             break

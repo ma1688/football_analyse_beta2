@@ -5,14 +5,14 @@
 # @Author    :MA-X-J
 # @Software  :PyCharm
 import logging
-import os
 import random
+import time
 
 import chardet
 import httpx
-from parsel import Selector
-from bs4 import BeautifulSoup
 import pandas as pd
+from bs4 import BeautifulSoup
+from parsel import Selector
 
 # 创建一个logger
 logger = logging.getLogger(__name__)
@@ -229,7 +229,33 @@ def save_recent_data(recent_data, name_type):
         return False
 
 
-if __name__ == '__main__':
-    fid = 1145739
-    selector_data = get_base_data(fid)
-    parse_html(selector_data)
+def main_base_data(choose_list: list):
+    """
+    主函数
+    :param choose_list: 选择的比赛ID
+    :return:
+    """
+    for match_data in choose_list:
+        fid_value = match_data.get('fid', None)
+        cnum = match_data.get('场次', None)
+        Events = match_data.get('赛事', None)
+        Rounds = match_data.get('轮次', None)
+        matches_time = match_data.get('比赛时间', None)
+        state = match_data.get('状态', None)
+        home_name = match_data.get('主队', None)
+        away_name = match_data.get('客队', None)
+        score = match_data.get('比分', None)
+        rq = match_data.get('让球', None)
+        print(
+            f"比赛ID: {fid_value} 场次: {cnum} 赛事: {Events} 轮次: {Rounds} 比赛时间: {matches_time} 状态: {state} 主队: {home_name} 客队: {away_name} 比分: {score} 让球: {rq}")
+        print()
+        sr_data = get_base_data(fid_value)
+        parse_html(sr_data)
+        time.sleep(1.68)
+
+
+#
+# if __name__ == '__main__':
+#     fid = 1145739
+#     selector_data = get_base_data(fid)
+#     parse_html(selector_data)
