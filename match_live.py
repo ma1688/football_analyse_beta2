@@ -6,6 +6,7 @@
 # @Software  :PyCharm
 import logging
 import re
+import time
 
 import chardet
 import httpx
@@ -14,28 +15,21 @@ from prettytable import PrettyTable
 
 # 创建一个logger
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
 
 # 创建一个handler，用于写入日志文件
 fh = logging.FileHandler('./match_live.log')
-fh.setLevel(logging.DEBUG)
-
-# 再创建一个handler，用于输出到控制台
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
+fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
 
 # 定义handler的输出格式
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-ch.setFormatter(formatter)
+fh.setFormatter(formatter)  # 为文件handler设置格式
 
 # 给logger添加handler
 logger.addHandler(fh)
-logger.addHandler(ch)
 
-# Setup logging
-logging.basicConfig(level=logging.ERROR)
-logger = logging.getLogger(__name__)
+# 设置基础配置的日志级别为ERROR
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 
 def parse_html(text):
@@ -128,23 +122,22 @@ def select_data(selector):
         parse_data = []
         for match in match_data_xpath:
             data = parse_html(match)
-            # Skip adding the data to parse_data if all values are None
             if all(value is None for value in data.values()):
                 continue
             parse_data.append(data)
 
-        # Create a prettytable object
         table = PrettyTable()
-        # Set the field names to the keys of the first dictionary in parse_data
-        table.field_names = list(parse_data[0].keys()) if parse_data else []
+        if parse_data:
+            table.field_names = list(parse_data[0].keys())
 
-        # Add a row for each dictionary in parse_data
         for data in parse_data:
-            table.add_row(list(data.values()))
-
-        # Print the table
+            if data['状态'] == '完':
+                # Wrap each value in red ANSI escape codes
+                red_row = [f"\033[91m{value}\033[0m" for value in data.values()]
+                table.add_row(red_row)
+            else:
+                table.add_row(list(data.values()))
         print(table)
-
         return parse_data
 
     except Exception as e:
@@ -154,31 +147,33 @@ def select_data(selector):
 
 if __name__ == '__main__':
     html = get_zqdc()
-    # print(html)
     selector = parse_html_content(html)
-    chose_list = []
     while True:
         if selector:
-            match_list = select_data(selector)
-            try:
+            while True:
+                chose_list = []
+                match_list = select_data(selector)
                 choose = input(f"请选择你想要的比赛场次范围(例如:1-8或1): ")
-                if choose == '++':
-                    break
-                if ',' in choose:
-                    start_match, end_match = choose.split(',')
-                else:
-                    start_match = end_match = choose
-                # 检查"场次"列是否在你想要的范围内
-                if start_match and end_match:
-                    start_num = int(start_match)
-                    end_num = int(end_match)
-                    for match in match_list:
-                        if start_num <= int(match['场次']) <= end_num:
-                            print(match)
-                            chose_list.append(match)
-            except ValueError:
-                print("输入的场次范围不正确，请重新输入。")
-
+                try:
+                    # 输入'++'退出
+                    if choose == '++':
+                        break
+                    if ',' in choose:
+                        start_match, end_match = choose.split(',')
+                    else:
+                        start_match = end_match = choose
+                    # 检查"场次"列是否在你想要的范围内
+                    if start_match and end_match:
+                        start_num = int(start_match)
+                        end_num = int(end_match)
+                        for match in match_list:
+                            if start_num <= int(match['场次']) <= end_num:
+                                print(match)
+                                chose_list.append(match)
+                except ValueError:
+                    logger.error(
+                        "输入的场次范围不正确，请重新输入。")
+                print(chose_list)
         else:
             logger.error("Selector is None.")
             break
