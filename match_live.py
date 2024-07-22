@@ -23,7 +23,7 @@ logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
 # 创建一个handler，用于写入日志文件
 fh = logging.FileHandler('./match_live.log')
 fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
-ch = logging.FileHandler('./matches.log')
+ch = logging.FileHandler('./match_live.log')
 ch.setLevel(logging.INFO)  # 设置handler级别为INFO
 
 # 定义handler的输出格式
@@ -241,7 +241,12 @@ if __name__ == '__main__':
                     logger.error(
                         "输入的场次范围不正确，请重新输入。")
                 # print(chose_list)
-                main_base_data(chose_list)
+                try:
+                    main_base_data(chose_list)
+                except Exception as e:
+                    logger.error(f"出错: {e}")
+                    break
+
         else:
             logger.error("Selector is None.")
             break

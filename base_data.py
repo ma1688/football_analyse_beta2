@@ -5,6 +5,7 @@
 # @Author    :MA-X-J
 # @Software  :PyCharm
 import logging
+import os
 import random
 import time
 
@@ -129,10 +130,15 @@ def get_base_data(f_id):
 
 
 # 解析保存数据
-def parse_html(selector):
+def parse_html(selector, event, Rounds, home_name, away_name):
     """
     解析数据
+
     :param selector: Selector
+    :param event: 赛事
+    :param Rounds: 轮次
+    :param home_name: 主队名称
+    :param away_name: 客队名称
     :return: dict
     """
 
@@ -149,25 +155,31 @@ def parse_html(selector):
     for i in range(1, 3):
         home_recent_data = selector.xpath(
             f'//div[{i}]/form/div[3]/table/tbody/tr').getall()
-        save_recent_data(home_recent_data, 'home' if i == 1 else 'away')
-    save_recent_data(history_data, "history", )
+        if i == 1:
+            data_name = "home"
+            data_name1 = home_name
+        else:
+            data_name = "away"
+            data_name1 = away_name
+        save_recent_data(home_recent_data, data_name, event, Rounds, data_name1)
+    save_recent_data(history_data, "history", event, Rounds, home_name)
     print("\033[92m近期数据已经保存\033[0m")
     return home_rank_data, away_rank_data
 
 
-def save_recent_data(recent_data, name_type, home_name, away_name):
+def save_recent_data(recent_data, name_type, Events, Rounds, team_name):
     """
     保存近期比赛数据
-    :param away_name: 客队
-    :param home_name: 主队
-    :param rounds:
-    :param f_id:
     :param recent_data:
-    :param name_type: 竞彩 or 北单
-    :param league_type: 赛事类型
-    :param away: 客队
+    :param name_type: history, home, away
+    :param Events:  赛事
+    :param Rounds: 轮次
+    :param team_name: 球队名称
     :return:
     """
+    data_directory = f'./data/{Events}/{Rounds}'
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
     if recent_data:
         # 假定 home_recent_data 是你提供的数据列表
         matches = []
@@ -223,9 +235,13 @@ def save_recent_data(recent_data, name_type, home_name, away_name):
                     # 保存信息
                     matches.append(matchs_list_type)
         print(matches)
-        matches_pd = pd.DataFrame(matches)
-        matches_pd.to_csv(f'{home_name}_{name_type}.csv', index=False, encoding='utf-8-sig')
-
+        try:
+            matches_pd = pd.DataFrame(matches)
+            matches_pd.to_csv(f'./data/{Events}/{Rounds}/{team_name}_{name_type}.csv', index=False,
+                              encoding='utf-8-sig')
+        except Exception as e:
+            logger.error(f"Error occurred while saving data: {e}")
+            return False
     else:
         print("空数据")
         return False
@@ -252,7 +268,7 @@ def main_base_data(choose_list: list):
             f"比赛ID: {fid_value} 场次: {cnum} 赛事: {Events} 轮次: {Rounds} 比赛时间: {matches_time} 状态: {state} 主队: {home_name} 客队: {away_name} 比分: {score} 让球: {rq}")
         print()
         sr_data = get_base_data(fid_value)
-        parse_html(sr_data)
+        parse_html(sr_data, Events, Rounds, home_name, away_name)
         time.sleep(1.68)
 
 #
