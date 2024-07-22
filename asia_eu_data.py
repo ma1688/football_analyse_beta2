@@ -338,7 +338,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
     eu_results = await asyncio.gather(*eu_tasks, return_exceptions=True)
-    await asyncio.sleep(10)
+    await asyncio.sleep(5, 10)
     asia_results = await asyncio.gather(*asia_tasks, return_exceptions=True)
 
     data_directory = f'./data/{Events}/{Rounds}'
@@ -349,28 +349,30 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     asia_data = []
     for result in eu_results:
         # print(f"URL Name: {result['name']}, Data: {result['data']}")
-        if result['data']['counts'] == [0, 0, 0]:
-            print(f"{Fore.RED}{result['name']}欧赔同盘数据为空{Style.RESET_ALL}")
-            time.sleep(1.6888)
-        else:
-            eu_list = await process_eu_data(result['name'], result['data'])
-            eu_data += eu_list
+        if result['data'] is not None:
+            if result['data']['counts'] == [0, 0, 0]:
+                logger.info(f"{Fore.RED}{result['name']}欧赔同盘数据为空{Style.RESET_ALL}")
+                time.sleep(1.6888)
+            else:
+                eu_list = await process_eu_data(result['name'], result['data'])
+                eu_data += eu_list
 
     eu_list = pd.DataFrame(eu_data)
     eu_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_eu_results.csv", index=False)
 
     for result in asia_results:
         # print(f"URL Name: {result['name']}, Data: {result['data']}")
-        if result['data']['match'] is None:
-            print(f"{Fore.RED}{result['name']}亚赔同盘数据为空{Style.RESET_ALL}")
-            time.sleep(1.6888)
-        else:
-            asia_list = await process_asia_data(result['name'], result['data'])
-            asia_data += asia_list
+        if result['data'] is not None:
+            if result['data']['match'] is None:
+                logger.info(f"{Fore.RED}{result['name']}亚赔同盘数据为空{Style.RESET_ALL}")
+                time.sleep(1.6888)
+            else:
+                asia_list = await process_asia_data(result['name'], result['data'])
+                asia_data += asia_list
     asia_list = pd.DataFrame(asia_data)
     asia_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_asia_results.csv", index=False)
 
-    print(f"\n{Fore.GREEN}欧亚赔数据处理完成{Style.RESET_ALL}")
+    logger.info(f"{Fore.GREEN}欧亚赔数据处理完成{Style.RESET_ALL}")
 
 
 # Run the main function

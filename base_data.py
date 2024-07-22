@@ -166,7 +166,7 @@ def parse_html(selector, event, Rounds, home_name, away_name):
             data_name1 = away_name
         save_recent_data(home_recent_data, data_name, event, Rounds, data_name1)
     save_recent_data(history_data, "history", event, Rounds, home_name)
-    print("\033[92m近期数据已经保存\033[0m")
+    logger.info("\033[92m基本数据已经保存\033[0m")
     return home_rank_data, away_rank_data
 
 

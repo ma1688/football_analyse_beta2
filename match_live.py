@@ -219,12 +219,24 @@ def select_data(selector):
         return None
 
 
-def main():
+def main(choose_list):
     """
     主入口
     :return:
     """
     at = time.time()
+    for match_data in choose_list:
+        fid_value = match_data.get('fid', None)
+        cnum = match_data.get('场次', None)
+        Events = match_data.get('赛事', None)
+        Rounds = match_data.get('轮次', None)
+        matches_time = match_data.get('比赛时间', None)
+        state = match_data.get('状态', None)
+        home_name = match_data.get('主队', None)
+        away_name = match_data.get('客队', None)
+        score = match_data.get('比分', None)
+        rq = match_data.get('让球', None)
+
     main_base_data(chose_list)
     asyncio.run(get_eu_asia(chose_list))
     print(f"耗时: {time.time() - at}s")
@@ -257,11 +269,10 @@ if __name__ == '__main__':
                                 logger.info(match)
                                 chose_list.append(match)
                 except ValueError:
-                    logger.error(
+                    logger.warning(
                         "输入的场次范围不正确，请重新输入。")
-                # print(chose_list)
                 try:
-                    main()
+                    main(chose_list)
                 except Exception as e:
                     logger.error(f"出错: {e}")
                     break
