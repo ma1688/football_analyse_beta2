@@ -89,6 +89,8 @@ async def get_headers():
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
         "Accept-Encoding": "gzip, deflate, br, zstd",
         "Connection": "keep-alive",
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-Requested-With": "XMLHttpRequest",
         "Cookie": "WT_FPC=id=undefined:lv=1721568321596:ss=1721568321596; "
                   "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl"
                   "%3DLP86gRTLBgxW_wOoE2V5pJMmvY3MJsJKu29lHjEcGAXgTTOj98hJjnq41gwD7mDk%26wd%3D%26eqid"
@@ -151,13 +153,13 @@ async def second_req(semaphore, url_params, url_name):
                 response = await client.get(
                     url=url_params,
                     headers=await get_headers(),
-                    timeout=5.688
+                    # headers=he,
+                    timeout=16.688
                 )
                 if response.status_code == 200:
                     return {"name": url_name, "data": json.loads(response.text)}
                 else:
                     return {"name": url_name, "data": None}
-
     except Exception as e:
         logger.error(f"二次请求出错: {e}")
         return {"name": url_name, "data": None}
@@ -216,8 +218,15 @@ async def get_asia_url(fid, vs_date):
         match = re.search(pattern, value)
         if match:
             cid, cp, s1, s2 = match.groups()
-            new_url = f"https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid={cid}&cp={cp}&s1={s1}&s2={s2}&id={fid}&mid=0&vsdate={new_vs_date}&t={time.time() * 1000}"
+            # print(f"cid: {cid}, cp: {cp}, s1: {s1}, s2: {s2}")
+            new_url = f"https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid={cid}&cp={cp}&s1={s1}&s2={s2}&id={fid}&mid=0&vsdate={new_vs_date}&t={int(time.time() * 1000)}"
             new_url_dict[key] = new_url
+            # print(f"New URL: {new_url}")
+            # print(await second_req(asyncio.Semaphore(5), new_url, key))
+            # break
+            # # ("https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid=293&cp=%E5%B9%B3%E6%89%8B&s1=1.000&s2=0.760&id"
+            # #  "=1145346&mid=0&vsdate=2024-07-23+01%3A00%3A00&t=1721647952481")
+            # # break
         else:
             print("No match found")
     return new_url_dict
@@ -243,7 +252,7 @@ async def get_eu_asia(choose_list: list):
         print(
             f"比赛ID: {fid_value} 场次: {cnum} 赛事: {Events} 轮次: {Rounds} 比赛时间: {matches_time} 状态: {state} 主队: {home_name} 客队: {away_name} 比分: {score} 让球: {rq}")
         print()
-        await main(fid_value, Events, Rounds, home_name)
+        await main(fid_value, Events, Rounds, home_name, matches_time)
 
 
 async def main(fid_value, Events, Rounds, home_name, vs_date):
@@ -266,6 +275,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
     eu_results = await asyncio.gather(*eu_tasks)
+    await asyncio.sleep(6.88)
     asia_results = await asyncio.gather(*asia_tasks)
 
     eu_results_csv = pd.DataFrame(eu_results)
@@ -280,6 +290,8 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     for result in eu_results:
         print(f"URL Name: {result['name']}, Data: {result['data']}")
 
+    print()
+    print("\n")
     for result in asia_results:
         print(f"URL Name: {result['name']}, Data: {result['data']}")
 
@@ -287,6 +299,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
 # Run the main function
 if __name__ == "__main__":
     t = time.time()
+    # print(int(time.time() * 1000))
     # asyncio.run(get_eu_asia())
     asyncio.run(get_asia_url(1145346, "07-23 00:00"))
     print(f"Time taken: {time.time() - t} seconds.")
