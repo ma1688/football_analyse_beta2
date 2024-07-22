@@ -219,6 +219,17 @@ def select_data(selector):
         return None
 
 
+def main():
+    """
+    主入口
+    :return:
+    """
+    at = time.time()
+    main_base_data(chose_list)
+    asyncio.run(get_eu_asia(chose_list))
+    print(f"耗时: {time.time() - at}s")
+
+
 if __name__ == '__main__':
     html = get_zqdc()
     selector = parse_html_content(html)
@@ -250,10 +261,7 @@ if __name__ == '__main__':
                         "输入的场次范围不正确，请重新输入。")
                 # print(chose_list)
                 try:
-                    at = time.time()
-                    main_base_data(chose_list)
-                    asyncio.run(get_eu_asia(chose_list))
-                    print(f"耗时: {time.time() - at}")
+                    main()
                 except Exception as e:
                     logger.error(f"出错: {e}")
                     break

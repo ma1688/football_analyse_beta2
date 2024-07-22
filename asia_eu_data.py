@@ -370,6 +370,8 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     asia_list = pd.DataFrame(asia_data)
     asia_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_asia_results.csv", index=False)
 
+    print(f"\n{Fore.GREEN}欧亚赔数据处理完成{Style.RESET_ALL}")
+
 
 # Run the main function
 if __name__ == "__main__":

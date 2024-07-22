@@ -246,7 +246,7 @@ def save_recent_data(recent_data, name_type, Events, Rounds, team_name):
             logger.error(f"Error occurred while saving data: {e}")
             return False
     else:
-        print("空数据")
+        print("历史交锋数据为空")
         return False
 
 
