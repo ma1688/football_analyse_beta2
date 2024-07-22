@@ -23,7 +23,11 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
 
 # 创建一个handler，用于写入日志文件
-fh = logging.FileHandler('./asia_eu_data.log')
+log_directory = f'./data/log/'
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+# 创建一个handler，用于写入日志文件
+fh = logging.FileHandler(f'{log_directory}asia_eu_data.log')
 fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
 
 # 定义handler的输出格式
@@ -218,15 +222,8 @@ async def get_asia_url(fid, vs_date):
         match = re.search(pattern, value)
         if match:
             cid, cp, s1, s2 = match.groups()
-            # print(f"cid: {cid}, cp: {cp}, s1: {s1}, s2: {s2}")
             new_url = f"https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid={cid}&cp={cp}&s1={s1}&s2={s2}&id={fid}&mid=0&vsdate={new_vs_date}&t={int(time.time() * 1000)}"
             new_url_dict[key] = new_url
-            # print(f"New URL: {new_url}")
-            # print(await second_req(asyncio.Semaphore(5), new_url, key))
-            # break
-            # # ("https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid=293&cp=%E5%B9%B3%E6%89%8B&s1=1.000&s2=0.760&id"
-            # #  "=1145346&mid=0&vsdate=2024-07-23+01%3A00%3A00&t=1721647952481")
-            # # break
         else:
             print("No match found")
     return new_url_dict

@@ -6,6 +6,7 @@
 # @Software  :PyCharm
 import asyncio
 import logging
+import os
 import re
 import time
 from datetime import datetime
@@ -24,9 +25,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
 
 # 创建一个handler，用于写入日志文件
-fh = logging.FileHandler('./match_live.log')
+# 创建一个handler，用于写入日志文件
+log_directory = f'./data/log/'
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+fh = logging.FileHandler(f'{log_directory}match_live.log')
 fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
-ch = logging.FileHandler('./match_live.log')
+ch = logging.FileHandler(f'{log_directory}match_live.log')
 ch.setLevel(logging.INFO)  # 设置handler级别为INFO
 
 # 定义handler的输出格式

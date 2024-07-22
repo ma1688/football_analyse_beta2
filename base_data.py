@@ -20,7 +20,10 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
 
 # 创建一个handler，用于写入日志文件
-fh = logging.FileHandler('./base_data.log')
+log_directory = f'./data/log/'
+if not os.path.exists(log_directory):
+    os.makedirs(log_directory)
+fh = logging.FileHandler(f'{log_directory}base_data.log')
 fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
 
 # 定义handler的输出格式
