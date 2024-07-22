@@ -4,6 +4,7 @@
 # @Time      :2024/6/28 上午11:22
 # @Author    :MA-X-J
 # @Software  :PyCharm
+import asyncio
 import logging
 import re
 from datetime import datetime
@@ -14,6 +15,7 @@ import pymysql
 from parsel import Selector
 from prettytable import PrettyTable
 
+from asia_eu_data import get_eu_asia
 from base_data import main_base_data
 
 # 创建一个logger
@@ -243,6 +245,7 @@ if __name__ == '__main__':
                 # print(chose_list)
                 try:
                     main_base_data(chose_list)
+                    asyncio.run(get_eu_asia(chose_list))
                 except Exception as e:
                     logger.error(f"出错: {e}")
                     break
