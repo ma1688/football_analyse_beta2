@@ -189,6 +189,40 @@ async def get_europe_url(fid):
     return new_url_dict
 
 
+async def convert_to_datetime(a):
+    year = datetime.now().year
+    date_time_str = str(year) + '-' + a + ':00'
+
+    date_time_obj = datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
+    return date_time_obj
+
+
+async def get_asia_url(fid, vs_date):
+    """获取亚赔初盘同赔url"""
+    # 对vsdate处理
+    new_vs_date = await convert_to_datetime(vs_date)
+    # 1. 获取各家亚赔公司的url
+    resp = await first_req(f"yazhi", fid)
+    url_name = resp.xpath('//tr/td[2]/p/a/span[@class="quancheng"]/text()').getall()  # 公司名称
+    url_list = resp.xpath('//tr/td[7]/a[3]/@href').getall()  # 公司url
+
+    url_dict = dict(zip(url_name, url_list))
+    # Filter url_dict to only include keys that are present in pan_dict
+    filtered_url_dict = {key: url_dict[key] for key in url_dict if key in pan_dict}
+    new_url_dict = {}
+    for key, value in filtered_url_dict.items():
+        pattern = r"cid=(\d+)&cp=([^&]+)&.*s1=([0-9.]+)&s2=([0-9.]+)"
+
+        match = re.search(pattern, value)
+        if match:
+            cid, cp, s1, s2 = match.groups()
+            new_url = f"https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid={cid}&cp={cp}&s1={s1}&s2={s2}&id={fid}&mid=0&vsdate={new_vs_date}&t={time.time() * 1000}"
+            new_url_dict[key] = new_url
+        else:
+            print("No match found")
+    return new_url_dict
+
+
 async def get_eu_asia(choose_list: list):
     """
     主函数
@@ -212,36 +246,47 @@ async def get_eu_asia(choose_list: list):
         await main(fid_value, Events, Rounds, home_name)
 
 
-async def main(fid_value, Events, Rounds, home_name):
+async def main(fid_value, Events, Rounds, home_name, vs_date):
     """
     Main function to create and run tasks for fetching data from URLs in filtered_url_dict.
     """
-    new_url_dict = await get_europe_url(fid_value)
+    new_eu_url_dict = await get_europe_url(fid_value)
+    new_asia_url_dict = await get_asia_url(fid_value, vs_date)
 
-    tasks = []
+    eu_tasks = []
+    asia_tasks = []
 
     semaphore = asyncio.Semaphore(5)  # 最多允许5个并发任务
     # 在创建任务时，传递额外的标识信息
-    for url_name, url in new_url_dict.items():
-        tasks.append(second_req(semaphore, url, url_name))
+    for url_name, url in new_eu_url_dict.items():
+        eu_tasks.append(second_req(semaphore, url, url_name))
+
+    for url_name, url in new_asia_url_dict.items():
+        asia_tasks.append(second_req(semaphore, url, url_name))
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
-    results = await asyncio.gather(*tasks)
+    eu_results = await asyncio.gather(*eu_tasks)
+    asia_results = await asyncio.gather(*asia_tasks)
 
-    results_csv = pd.DataFrame(results)
+    eu_results_csv = pd.DataFrame(eu_results)
+    asia_results_csv = pd.DataFrame(asia_results)
 
     data_directory = f'./data/{Events}/{Rounds}'
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
-    results_csv.to_csv("{}/{}_eu_results.csv".format(data_directory, home_name), index=False)
-    for result in results:
+    eu_results_csv.to_csv("{}/{}_eu_results.csv".format(data_directory, home_name), index=False)
+    asia_results_csv.to_csv("{}/{}_asia_results.csv".format(data_directory, home_name), index=False)
+
+    for result in eu_results:
         print(f"URL Name: {result['name']}, Data: {result['data']}")
 
-    return results
+    for result in asia_results:
+        print(f"URL Name: {result['name']}, Data: {result['data']}")
 
 
 # Run the main function
 if __name__ == "__main__":
     t = time.time()
-    asyncio.run(get_eu_asia())
+    # asyncio.run(get_eu_asia())
+    asyncio.run(get_asia_url(1145346, "07-23 00:00"))
     print(f"Time taken: {time.time() - t} seconds.")
