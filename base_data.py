@@ -237,7 +237,7 @@ def save_recent_data(recent_data, name_type, Events, Rounds, team_name):
                     }
                     # 保存信息
                     matches.append(matchs_list_type)
-        print(matches)
+        # print(matches)
         try:
             matches_pd = pd.DataFrame(matches)
             matches_pd.to_csv(f'./data/{Events}/{Rounds}/{team_name}_{name_type}.csv', index=False,

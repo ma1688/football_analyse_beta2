@@ -16,6 +16,8 @@ from datetime import datetime
 import chardet
 import httpx
 import pandas as pd
+from colorama import Fore, Style
+from lxml import html
 from parsel import Selector
 
 # 创建一个logger
@@ -160,6 +162,7 @@ async def second_req(semaphore, url_params, url_name):
                     # headers=he,
                     timeout=16.688
                 )
+                response.raise_for_status()
                 if response.status_code == 200:
                     return {"name": url_name, "data": json.loads(response.text)}
                 else:
@@ -224,6 +227,10 @@ async def get_asia_url(fid, vs_date):
             cid, cp, s1, s2 = match.groups()
             new_url = f"https://odds.500.com/fenxi1/inc/yazhi_sameajax.php?cid={cid}&cp={cp}&s1={s1}&s2={s2}&id={fid}&mid=0&vsdate={new_vs_date}&t={int(time.time() * 1000)}"
             new_url_dict[key] = new_url
+            # aa = await second_req(asyncio.Semaphore(5), new_url, key)
+            # await process_asia_data(aa["data"])
+            # if len(new_url_dict) == 1:
+            #     break
         else:
             print("No match found")
     return new_url_dict
@@ -246,10 +253,69 @@ async def get_eu_asia(choose_list: list):
         away_name = match_data.get('客队', None)
         score = match_data.get('比分', None)
         rq = match_data.get('让球', None)
-        print(
-            f"比赛ID: {fid_value} 场次: {cnum} 赛事: {Events} 轮次: {Rounds} 比赛时间: {matches_time} 状态: {state} 主队: {home_name} 客队: {away_name} 比分: {score} 让球: {rq}")
-        print()
         await main(fid_value, Events, Rounds, home_name, matches_time)
+
+
+async def process_eu_data(company_name, eu_data):
+    """
+    处理欧盘数据
+    :return:
+    """
+    new_eu_data = []
+    count = eu_data['counts']
+    if count == [0, 0, 0]:
+        print(f"该公司无数据")
+        return False
+    else:
+        row = eu_data['row']
+        match = eu_data['match']
+        for i_value in range(len(row)):
+            row_data = {"欧盘公司": company_name, "f_id": row[i_value][4],
+                        "赛事": match[str(row[i_value][0])].replace("\u3000\u3000", "").strip(),
+                        "比赛日期": row[i_value][3],
+                        "主队": row[i_value][5], "客队": row[i_value][8],
+                        "比分": str(row[i_value][6]) + ":" + str(row[i_value][7]),
+                        "终赔": [row[i_value][10], row[i_value][11], row[i_value][12]]}
+
+            new_eu_data.append(row_data)
+
+        return new_eu_data
+
+
+async def process_asia_data(company_name, asia_data):
+    """
+    处理亚盘数据
+
+    :param company_name:
+    :param asia_data:
+    :return:
+    """
+    row = asia_data['row']  # 同盘比赛信息
+    match = asia_data['match']  # 联赛类型
+    if match is None:
+        print("该公司无数据")
+        return False
+    else:
+        new_asia_data = []
+        for s1 in row:
+            tree = html.fromstring(s1)
+            league1 = tree.xpath('//a[contains(@href, "https://liansai.500.com/zuqiu-")]/text()')[0].replace(
+                "\u3000\u3000", "").strip()
+            date1 = tree.xpath('//td[2]/text()')[0]
+            match1 = tree.xpath('//td[@class="dz"]/a/text()')[0].replace('\xa0', ' ')
+            parts = match1.split("  ")
+
+            home_team = parts[0]  # 主队名称
+            score = parts[1]  # 比分
+            away_team = parts[2]  # 客队名称
+            result1 = tree.xpath('//td/span/text()')[0]
+            odds1 = tree.xpath('//td[position() > 7 and position() < 16]/text()')
+            row_data = {"欧盘公司": company_name, "联赛": league1, "日期": date1, "主队": home_team, "比分": score,
+                        "客队": away_team,
+                        "结果": result1,
+                        "赔率": odds1}
+            new_asia_data.append(row_data)
+        return new_asia_data
 
 
 async def main(fid_value, Events, Rounds, home_name, vs_date):
@@ -272,25 +338,37 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
     eu_results = await asyncio.gather(*eu_tasks)
-    await asyncio.sleep(6.88)
+    await asyncio.sleep(10)
     asia_results = await asyncio.gather(*asia_tasks)
-
-    eu_results_csv = pd.DataFrame(eu_results)
-    asia_results_csv = pd.DataFrame(asia_results)
 
     data_directory = f'./data/{Events}/{Rounds}'
     if not os.path.exists(data_directory):
         os.makedirs(data_directory)
-    eu_results_csv.to_csv("{}/{}_eu_results.csv".format(data_directory, home_name), index=False)
-    asia_results_csv.to_csv("{}/{}_asia_results.csv".format(data_directory, home_name), index=False)
 
+    eu_data = []
+    asia_data = []
     for result in eu_results:
-        print(f"URL Name: {result['name']}, Data: {result['data']}")
+        # print(f"URL Name: {result['name']}, Data: {result['data']}")
+        if result['data']['counts'] == [0, 0, 0]:
+            print(f"{Fore.RED}{result['name']}欧赔同盘数据为空{Style.RESET_ALL}")
+            time.sleep(1.6888)
+        else:
+            eu_list = await process_eu_data(result['name'], result['data'])
+            eu_data += eu_list
 
-    print()
-    print("\n")
+    eu_list = pd.DataFrame(eu_data)
+    eu_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_eu_results.csv", index=False)
+
     for result in asia_results:
-        print(f"URL Name: {result['name']}, Data: {result['data']}")
+        # print(f"URL Name: {result['name']}, Data: {result['data']}")
+        if result['data']['match'] is None:
+            print(f"{Fore.RED}{result['name']}亚赔同盘数据为空{Style.RESET_ALL}")
+            time.sleep(1.6888)
+        else:
+            asia_list = await process_asia_data(result['name'], result['data'])
+            asia_data += asia_list
+    asia_list = pd.DataFrame(asia_data)
+    asia_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_asia_results.csv", index=False)
 
 
 # Run the main function
