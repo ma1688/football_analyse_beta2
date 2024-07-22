@@ -337,9 +337,9 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
         asia_tasks.append(second_req(semaphore, url, url_name))
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
-    eu_results = await asyncio.gather(*eu_tasks)
+    eu_results = await asyncio.gather(*eu_tasks, return_exceptions=True)
     await asyncio.sleep(10)
-    asia_results = await asyncio.gather(*asia_tasks)
+    asia_results = await asyncio.gather(*asia_tasks, return_exceptions=True)
 
     data_directory = f'./data/{Events}/{Rounds}'
     if not os.path.exists(data_directory):
