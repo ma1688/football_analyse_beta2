@@ -6,7 +6,6 @@
 # @Software  :PyCharm
 import asyncio
 import json
-import logging
 import os
 import random
 import re
@@ -20,27 +19,7 @@ from colorama import Fore, Style
 from lxml import html
 from parsel import Selector
 
-# 创建一个logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
-
-# 创建一个handler，用于写入日志文件
-log_directory = f'./data/log/'
-if not os.path.exists(log_directory):
-    os.makedirs(log_directory)
-# 创建一个handler，用于写入日志文件
-fh = logging.FileHandler(f'{log_directory}asia_eu_data.log')
-fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
-
-# 定义handler的输出格式
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)  # 为文件handler设置格式
-
-# 给logger添加handler
-logger.addHandler(fh)
-
-# 设置基础配置的日志级别为ERROR
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from logger import logger
 
 base_url = "https://odds.500.com/fenxi/"
 current_date = datetime.now().strftime("%Y-%m-%d")
@@ -97,22 +76,7 @@ async def get_headers():
         "Connection": "keep-alive",
         "Content-Type": "application/x-www-form-urlencoded",
         "X-Requested-With": "XMLHttpRequest",
-        "Cookie": "WT_FPC=id=undefined:lv=1721568321596:ss=1721568321596; "
-                  "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl"
-                  "%3DLP86gRTLBgxW_wOoE2V5pJMmvY3MJsJKu29lHjEcGAXgTTOj98hJjnq41gwD7mDk%26wd%3D%26eqid"
-                  "%3De1a103a50003858b0000000664f046e4; isautologin=1; isagree=1; "
-                  "Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1719823600; "
-                  "_jzqa=1.699021464142686100.1719823602.1719823602.1719826778.2; "
-                  "_qzja=1.807376057.1719823601650.1719823601650.1719826778157.1719824728776.1719826778157.0.0.0.13.2"
-                  "; __utma=63332592.1917194613.1719823603.1719823603.1719823603.1; "
-                  "__utmz=63332592.1719823603.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); "
-                  "_jzqx=1.1719826778.1719826778.1.jzqsr=odds%2E500%2Ecom|jzqct=/fenxi1/yazhi_same%2Ephp.-; "
-                  "ck_regchanel=_ad0.7232252524252528; regfrom=0%7Cala%7Cbaidu; ck_RegUrl=odds.500.com; "
-                  "pcTouchDownload500App=op_chupan; "
-                  "ck=MjAyMzA4MTgwMDAwNTUzOTA1ZmM3MTcwODAzMTBjYWI2MDZiMWIwMTIyNjdiYmZh; sdc_session=1692587441720; "
-                  "motion_id=1719824728136_0.8512543739505686; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1719824729; "
-                  "__utmc=63332592; _qzjc=1; _jzqc=1; sdc_userflag=1721568321596::1721568321596::1; "
-                  "CLICKSTRN_ID=117656264-1641645328.322497::9EC7C1B74FA330E6AE13CA38948C2672",
+        "Cookie": f"WT_FPC=id=undefined:lv={int(time.time()*1000)}:ss={int(time.time()*1000)}",
         "Upgrade-Insecure-Requests": "1",
         "Sec-Fetch-Dest": "document",
         "Sec-Fetch-Mode": "navigate",
@@ -194,7 +158,7 @@ async def get_europe_url(fid):
             new_url_dict[
                 key] = f"https://odds.500.com/fenxi1/inc/ouzhi_sameajax.php?cid={cid}&win={win}&draw={draw}&lost={lost}&id={fid}&mid=0"
         else:
-            print("No match found")
+            logger.info("No match found")
     return new_url_dict
 
 
@@ -232,7 +196,7 @@ async def get_asia_url(fid, vs_date):
             # if len(new_url_dict) == 1:
             #     break
         else:
-            print("No match found")
+            logger.info("No match found")
     return new_url_dict
 
 
@@ -264,7 +228,7 @@ async def process_eu_data(company_name, eu_data):
     new_eu_data = []
     count = eu_data['counts']
     if count == [0, 0, 0]:
-        print(f"该公司无数据")
+        logger.info(f"该公司无数据")
         return False
     else:
         row = eu_data['row']
@@ -293,7 +257,7 @@ async def process_asia_data(company_name, asia_data):
     row = asia_data['row']  # 同盘比赛信息
     match = asia_data['match']  # 联赛类型
     if match is None:
-        print("该公司无数据")
+        logger.info("该公司无数据")
         return False
     else:
         new_asia_data = []
@@ -328,7 +292,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     eu_tasks = []
     asia_tasks = []
 
-    semaphore = asyncio.Semaphore(5)  # 最多允许5个并发任务
+    semaphore = asyncio.Semaphore(2)  # 最多允许5个并发任务
     # 在创建任务时，传递额外的标识信息
     for url_name, url in new_eu_url_dict.items():
         eu_tasks.append(second_req(semaphore, url, url_name))
@@ -348,7 +312,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     eu_data = []
     asia_data = []
     for result in eu_results:
-        # print(f"URL Name: {result['name']}, Data: {result['data']}")
+        # logger.info(f"URL Name: {result['name']}, Data: {result['data']}")
         if result['data'] is not None:
             if result['data']['counts'] == [0, 0, 0]:
                 logger.info(f"{Fore.RED}{result['name']}欧赔同盘数据为空{Style.RESET_ALL}")
@@ -361,7 +325,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     eu_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_eu_results.csv", index=False)
 
     for result in asia_results:
-        # print(f"URL Name: {result['name']}, Data: {result['data']}")
+        # logger.info(f"URL Name: {result['name']}, Data: {result['data']}")
         if result['data'] is not None:
             if result['data']['match'] is None:
                 logger.info(f"{Fore.RED}{result['name']}亚赔同盘数据为空{Style.RESET_ALL}")
@@ -378,7 +342,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
 # Run the main function
 if __name__ == "__main__":
     t = time.time()
-    # print(int(time.time() * 1000))
+    # logger.info(int(time.time() * 1000))
     # asyncio.run(get_eu_asia())
     asyncio.run(get_asia_url(1145346, "07-23 00:00"))
-    print(f"Time taken: {time.time() - t} seconds.")
+    logger.info(f"Time taken: {time.time() - t} seconds.")

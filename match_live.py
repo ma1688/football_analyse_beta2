@@ -5,8 +5,7 @@
 # @Author    :MA-X-J
 # @Software  :PyCharm
 import asyncio
-import logging
-import os
+import random
 import re
 import time
 from datetime import datetime
@@ -19,32 +18,7 @@ from prettytable import PrettyTable
 
 from asia_eu_data import get_eu_asia
 from base_data import main_base_data
-
-# 创建一个logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
-
-# 创建一个handler，用于写入日志文件
-# 创建一个handler，用于写入日志文件
-log_directory = f'./data/log/'
-if not os.path.exists(log_directory):
-    os.makedirs(log_directory)
-fh = logging.FileHandler(f'{log_directory}match_live.log')
-fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
-ch = logging.FileHandler(f'{log_directory}match_live.log')
-ch.setLevel(logging.INFO)  # 设置handler级别为INFO
-
-# 定义handler的输出格式
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)  # 为文件handler设置格式
-ch.setFormatter(formatter)  # 为控制台handler设置格式
-
-# 给logger添加handler
-logger.addHandler(fh)
-logger.addHandler(ch)
-
-# 设置基础配置的日志级别为ERROR
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from logger import logger
 
 
 def insert_match_data_to_db(match_data):
@@ -138,12 +112,68 @@ def parse_html(text):
             logger.error(f"Error occurred while parsing HTML content for key '{key}': {e}")
             extracted_data[key] = None
 
-    # print(extracted_data)
+    # logger.info(extracted_data)
     return extracted_data
 
 
+def get_random_user_agent():
+    """随机获取user_agent"""
+    USER_AGENT_LIST = [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 "
+        "Safari/537.36 Edge/16.16299",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.96 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 "
+        "Safari/537.36",
+        "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 "
+        "Safari/537.36",
+    ]
+    return random.choice(USER_AGENT_LIST)  # 返回随机的User-Agent
+
+
+def get_headers():
+    return {
+        "Host": "live.500.com",
+        "User-Agent": get_random_user_agent(),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
+        "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+        "Accept-Encoding": "gzip, deflate, br, zstd",
+        "Referer": "https://live.500.com/",
+        "Connection": "keep-alive",
+        "Cookie": "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl%3DLP86gRTLBgxW_wOoE2V5pJMmvY3MJsJKu29lHjEcGAXgTTOj98hJjnq41gwD7mDk%26wd%3D%26eqid%3De1a103a50003858b0000000664f046e4; isautologin=1; isagree=1; Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1719823600; _jzqa=1.699021464142686100.1719823602.1719823602.1719826778.2; __utma=63332592.1917194613.1719823603.1719823603.1719823603.1; __utmz=63332592.1719823603.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); WT_FPC=id=undefined:lv=1721706756715:ss=1721706753624; _qzja=1.585134939.1719823987243.1719823987243.1719823987243.1719824001506.1719824003457.0.0.0.3.1; _jzqx=1.1719826778.1719826778.1.jzqsr=odds%2E500%2Ecom|jzqct=/fenxi1/yazhi_same%2Ephp.-; ck_regchanel=_ad0.7232252524252528; regfrom=0%7Cala%7Cbaidu; ck_RegUrl=odds.500.com; pcTouchDownload500App=op_chupan; ck=MjAyMzA4MTgwMDAwNTUzOTA1ZmM3MTcwODAzMTBjYWI2MDZiMWIwMTIyNjdiYmZh; sdc_session=1692587441720; motion_id=1721706756167_0.10349371366674198; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1719824729; __utmc=63332592; _qzjc=1; _jzqc=1; sdc_userflag=1721706746200::1721706756715::3; CLICKSTRN_ID=117.183.226.184-1641645328.322497::9EC7C1B74FA330E6AE13CA38948C2672",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Priority": "u=4",
+        "TE": "trailers"
+    }
+
+
 # 请求数据
-def get_zqdc(e=24074):
+def get_zqdc(e=24075):
     """
     获取足球单场
     :return:
@@ -151,8 +181,9 @@ def get_zqdc(e=24074):
     url = 'https://live.500.com/zqdc.php?e={}'.format(e)
     headers = {
         "Host": "live.500.com",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
+        "User-Agent": get_headers(),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,"
+                  "image/svg+xml,*/*;q=0.8",
         "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
         "Accept-Encoding": "gzip, deflate, br, zstd",
         "Referer": "https://live.500.com/zqdc.php",
@@ -167,7 +198,7 @@ def get_zqdc(e=24074):
     }
 
     try:
-        resp = httpx.get(url, headers=headers, timeout=10, verify=False)
+        resp = httpx.get(url, headers=get_headers(), timeout=10, verify=False)
         if resp.status_code == 200:
             return resp.content
         else:
@@ -211,7 +242,7 @@ def select_data(selector):
                 table.add_row(red_row)
             else:
                 table.add_row(list(data.values()))
-        print(table)
+        logger.info(table)
         return parse_data
 
     except Exception as e:
@@ -239,7 +270,7 @@ def main(choose_list):
 
     main_base_data(chose_list)
     asyncio.run(get_eu_asia(chose_list))
-    print(f"耗时: {time.time() - at}s")
+    logger.info(f"耗时: {time.time() - at}s")
 
 
 if __name__ == '__main__':
@@ -271,11 +302,8 @@ if __name__ == '__main__':
                 except ValueError:
                     logger.warning(
                         "输入的场次范围不正确，请重新输入。")
-                try:
-                    main(chose_list)
-                except Exception as e:
-                    logger.error(f"出错: {e}")
-                    break
+
+                main(chose_list)
 
         else:
             logger.error("Selector is None.")

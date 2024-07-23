@@ -4,7 +4,6 @@
 # @Time      :2024/7/21 下午7:04
 # @Author    :MA-X-J
 # @Software  :PyCharm
-import logging
 import os
 import random
 import time
@@ -15,26 +14,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from parsel import Selector
 
-# 创建一个logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)  # 设置logger的级别为INFO
-
-# 创建一个handler，用于写入日志文件
-log_directory = f'./data/log/'
-if not os.path.exists(log_directory):
-    os.makedirs(log_directory)
-fh = logging.FileHandler(f'{log_directory}base_data.log')
-fh.setLevel(logging.ERROR)  # 设置handler级别为ERROR
-
-# 定义handler的输出格式
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)  # 为文件handler设置格式
-
-# 给logger添加handler
-logger.addHandler(fh)
-
-# 设置基础配置的日志级别为ERROR
-logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+from logger import logger
 
 
 def get_random_user_agent():
@@ -237,7 +217,7 @@ def save_recent_data(recent_data, name_type, Events, Rounds, team_name):
                     }
                     # 保存信息
                     matches.append(matchs_list_type)
-        # print(matches)
+        # logger.info(matches)
         try:
             matches_pd = pd.DataFrame(matches)
             matches_pd.to_csv(f'./data/{Events}/{Rounds}/{team_name}_{name_type}.csv', index=False,
@@ -246,7 +226,7 @@ def save_recent_data(recent_data, name_type, Events, Rounds, team_name):
             logger.error(f"Error occurred while saving data: {e}")
             return False
     else:
-        print("历史交锋数据为空")
+        logger.info("历史交锋数据为空")
         return False
 
 
@@ -267,9 +247,8 @@ def main_base_data(choose_list: list):
         away_name = match_data.get('客队', None)
         score = match_data.get('比分', None)
         rq = match_data.get('让球', None)
-        print(
+        logger.info(
             f"比赛ID: {fid_value} 场次: {cnum} 赛事: {Events} 轮次: {Rounds} 比赛时间: {matches_time} 状态: {state} 主队: {home_name} 客队: {away_name} 比分: {score} 让球: {rq}")
-        print()
         sr_data = get_base_data(fid_value)
         parse_html(sr_data, Events, Rounds, home_name, away_name)
         time.sleep(1.68)
