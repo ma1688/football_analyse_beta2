@@ -248,10 +248,10 @@ def recent_data_analyse(csv_path):
         print(fenxi.analyse_let_ball_win_draw_lose(home_data))
         print(fenxi.analyse_plate_road(home_data))
 
-
     except Exception as e:
         logger.error("--------------读取文件失败 or 文件不存在---------------------", e)
 
 
 if __name__ == '__main__':
+    """主入口"""
     recent_data_analyse(r"D:\python\football_analyse_beta2\data\奥运女足\分组赛\加拿大女足_home.csv")
