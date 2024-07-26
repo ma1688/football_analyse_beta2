@@ -162,7 +162,22 @@ def get_headers():
         "Accept-Encoding": "gzip, deflate, br, zstd",
         "Referer": "https://live.500.com/",
         "Connection": "keep-alive",
-        "Cookie": "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl%3DLP86gRTLBgxW_wOoE2V5pJMmvY3MJsJKu29lHjEcGAXgTTOj98hJjnq41gwD7mDk%26wd%3D%26eqid%3De1a103a50003858b0000000664f046e4; isautologin=1; isagree=1; Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1719823600; _jzqa=1.699021464142686100.1719823602.1719823602.1719826778.2; __utma=63332592.1917194613.1719823603.1719823603.1719823603.1; __utmz=63332592.1719823603.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); WT_FPC=id=undefined:lv=1721706756715:ss=1721706753624; _qzja=1.585134939.1719823987243.1719823987243.1719823987243.1719824001506.1719824003457.0.0.0.3.1; _jzqx=1.1719826778.1719826778.1.jzqsr=odds%2E500%2Ecom|jzqct=/fenxi1/yazhi_same%2Ephp.-; ck_regchanel=_ad0.7232252524252528; regfrom=0%7Cala%7Cbaidu; ck_RegUrl=odds.500.com; pcTouchDownload500App=op_chupan; ck=MjAyMzA4MTgwMDAwNTUzOTA1ZmM3MTcwODAzMTBjYWI2MDZiMWIwMTIyNjdiYmZh; sdc_session=1692587441720; motion_id=1721706756167_0.10349371366674198; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1719824729; __utmc=63332592; _qzjc=1; _jzqc=1; sdc_userflag=1721706746200::1721706756715::3; CLICKSTRN_ID=117.183.226.184-1641645328.322497::9EC7C1B74FA330E6AE13CA38948C2672",
+        "Cookie": "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl"
+                  "%3DLP86gRTLBgxW_wOoE2V5pJMmvY3MJsJKu29lHjEcGAXgTTOj98hJjnq41gwD7mDk%26wd%3D%26eqid"
+                  "%3De1a103a50003858b0000000664f046e4; isautologin=1; isagree=1; "
+                  "Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1719823600; "
+                  "_jzqa=1.699021464142686100.1719823602.1719823602.1719826778.2; "
+                  "__utma=63332592.1917194613.1719823603.1719823603.1719823603.1; "
+                  "__utmz=63332592.1719823603.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); "
+                  "WT_FPC=id=undefined:lv=1721706756715:ss=1721706753624; "
+                  "_qzja=1.585134939.1719823987243.1719823987243.1719823987243.1719824001506.1719824003457.0.0.0.3.1; "
+                  "_jzqx=1.1719826778.1719826778.1.jzqsr=odds%2E500%2Ecom|jzqct=/fenxi1/yazhi_same%2Ephp.-; "
+                  "ck_regchanel=_ad0.7232252524252528; regfrom=0%7Cala%7Cbaidu; ck_RegUrl=odds.500.com; "
+                  "pcTouchDownload500App=op_chupan; "
+                  "ck=MjAyMzA4MTgwMDAiMWIwMTIyNjdiYmZh; sdc_session=1692587441720; "
+                  "motion_id=1721706756167_0.10349371366674198; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1719824729; "
+                  "__utmc=63332592; _qzjc=1; _jzqc=1; sdc_userflag=1721706746200::1721706756715::3; "
+                  "CLICKSTRN_ID=102.123.233.233-1641645328.322497::9EC7C1B74FA330E6AE13CA38948C2672",
         "Upgrade-Insecure-Requests": "1",
         "Sec-Fetch-Dest": "document",
         "Sec-Fetch-Mode": "navigate",
@@ -179,24 +194,10 @@ def get_zqdc(e=24075):
     :return:
     """
     url = 'https://live.500.com/zqdc.php?e={}'.format(e)
-    headers = {
-        "Host": "live.500.com",
-        "User-Agent": get_headers(),
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,"
-                  "image/svg+xml,*/*;q=0.8",
-        "Accept-Language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
-        "Accept-Encoding": "gzip, deflate, br, zstd",
-        "Referer": "https://live.500.com/zqdc.php",
-        "Connection": "keep-alive",
-        "Cookie": "ck_RegFromUrl=https%3A//odds.54fined:lv=171954528erflag=1::3; CLI61310106.45076::B8ED2705E86B4D811FE",
-        "Upgrade-Insecure-Requests": "1",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Priority": "u=0, i",
-        "TE": "trailers"
+    proxy = {
+        "http://": "http://127.0.0.1:1688",
+        "https://": "https://127.0.0.1:1688"
     }
-
     try:
         resp = httpx.get(url, headers=get_headers(), timeout=10, verify=False)
         if resp.status_code == 200:
