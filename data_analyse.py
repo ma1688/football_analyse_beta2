@@ -260,6 +260,7 @@ class AnalyseMethod:
             return False
 
 
+# 分析最近数据
 def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
     """
     分析最近数据
@@ -353,10 +354,23 @@ def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
         logger.error("--------------读取文件失败 or 文件不存在---------------------", e)
 
 
+# 分析欧盘数据
+def eu_odds_analyse():
+    pass
+
+
+# 分析亚盘数据
+def asia_odds_analyse():
+    pass
+
+
+# 总分析
+def total_analyse():
+    pass
+
+
 if __name__ == '__main__':
     """主入口"""
     a = time.time()
     recent_data_analyse("k1联赛", "第25轮", "光州FC", "水原FC", rq=0)
     print(time.time() - a)
-
-
