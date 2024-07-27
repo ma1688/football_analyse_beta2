@@ -86,6 +86,9 @@ class AnalyseMethod:
         try:
             big, small = 0, 0
             for score_data in r_data['比分']:
+                # 去除比分中未开赛的  "VS
+                if "VS" in score_data:
+                    continue
                 score_home, score_away = map(int, score_data.split(":"))
 
                 if score_home + score_away > 2.5:
@@ -112,6 +115,8 @@ class AnalyseMethod:
             # 进球数
             goal_dict = {}
             for score_data in r_data['比分']:
+                if "VS" in score_data:
+                    continue
                 score_home, score_away = map(int, score_data.split(":"))
                 total_goal = score_home + score_away
                 if total_goal not in goal_dict:
@@ -138,6 +143,8 @@ class AnalyseMethod:
             # 比分
             score_dict = {}
             for score_data in r_data['比分']:
+                if "VS" in score_data:
+                    continue
                 if score_data not in score_dict:
                     score_dict[score_data] = 1
                 else:
@@ -181,14 +188,21 @@ class AnalyseMethod:
         """
         try:
             rq_spf = {"rq_win": 0, "rq_draw": 0, "rq_lose": 0}
+            total_matches = 0
             for score_data in r_data['比分']:
+                if "VS" in score_data:
+                    continue
                 score_home, score_away = map(int, score_data.split(":"))
+                total_matches += 1
                 if score_home + self.rq > score_away:
                     rq_spf["rq_win"] += 1
                 elif score_home + self.rq == score_away:
                     rq_spf["rq_draw"] += 1
                 else:
                     rq_spf["rq_lose"] += 1
+
+            if total_matches > 0:
+                rq_spf = {key: value / total_matches for key, value in rq_spf.items()}
 
             return rq_spf
         except Exception as e:
@@ -254,4 +268,4 @@ def recent_data_analyse(csv_path):
 
 if __name__ == '__main__':
     """主入口"""
-    recent_data_analyse(r"D:\python\football_analyse_beta2\data\奥运女足\分组赛\加拿大女足_home.csv")
+    recent_data_analyse(r"D:\python\football_analyse_beta2\data\K1联赛\第25轮\江原FC_home.csv")
