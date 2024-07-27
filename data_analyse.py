@@ -4,6 +4,8 @@
 # @Time      :2024/7/26 下午9:37
 # @Author    :MA-X-J
 # @Software  :PyCharm
+import time
+
 import pandas as pd
 from colorama import Fore, Style
 
@@ -165,7 +167,7 @@ class AnalyseMethod:
         """
         try:
             wdl_dict = {"win": 0, "draw": 0, "lose": 0}
-            wdl = r_data['赛果'].value_counts(normalize=True)
+            wdl = r_data[r_data['赛果'] != '-']['赛果'].value_counts(normalize=True)
             for key, value in wdl.items():
                 if key == "胜":
                     wdl_dict["win"] = value
@@ -219,7 +221,8 @@ class AnalyseMethod:
         """
         try:
             pr_dict = {"win": 0, "zou": 0, "lose": 0}
-            pr_data = r_data['盘路'].value_counts(normalize=True)
+            pr_data = r_data[r_data['盘路'] != '-']['盘路'].value_counts(normalize=True)
+
             for key, value in pr_data.items():
                 if key == "赢":
                     pr_dict["win"] = value
@@ -232,40 +235,128 @@ class AnalyseMethod:
             logger.error(f"{Fore.RED}分析盘路出错: {e}{Style.RESET_ALL}")
             return False
 
+    # 进失球数
+    @staticmethod
+    def xa_goals(r_data):
+        """
+        进失球数
+        :param r_data:
+        :return:
+        """
+        xa_goals_dict = {"xxg": 0, "aag": 0}  # xxg: 进球数, aag: 失球数
 
-def recent_data_analyse(csv_path):
+        try:
+            for score_data in r_data['比分']:
+                if "VS" in score_data:
+                    continue
+                score_home, score_away = map(int, score_data.split(":"))
+                xa_goals_dict["xxg"] += score_home
+                xa_goals_dict["aag"] += score_away
+
+            return xa_goals_dict
+
+        except Exception as e:
+            logger.error(f"{Fore.RED}分析进失球数出错: {e}{Style.RESET_ALL}")
+            return False
+
+
+def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
     """
     分析最近数据
-    :param csv_path:
+    :param Events: 赛事
+    :param Rounds:  轮次
+    :param home_name: 主队
+    :param away_name: 客队
+    :param rq: 让球
     :return:
     """
-    fenxi = AnalyseMethod(-1, asia_min=-4, asia_max=4, eu_max=4, eu_min=-4)
-    try:
-        data = pd.read_csv(csv_path)
-        # print(data['比赛日期'], len(data['比赛日期']))
-        col_name = int(len(data['比赛日期']) / 2)
-        recent_data = data[:col_name]  # 近期数据
-        print(recent_data)
-        print(fenxi.analyse_big_small(recent_data))
-        print(fenxi.analyse_total_goal(recent_data))
-        print(fenxi.analyse_score(recent_data))
-        print(fenxi.analyse_win_draw_lose(recent_data))
-        print(fenxi.analyse_let_ball_win_draw_lose(recent_data))
-        print(fenxi.analyse_plate_road(recent_data))
-        print()
-        home_data = data[col_name:]  # 主场数据
-        print(home_data)
-        print(fenxi.analyse_big_small(home_data))
-        print(fenxi.analyse_total_goal(home_data))
-        print(fenxi.analyse_score(home_data))
-        print(fenxi.analyse_win_draw_lose(home_data))
-        print(fenxi.analyse_let_ball_win_draw_lose(home_data))
-        print(fenxi.analyse_plate_road(home_data))
+    fenxi = AnalyseMethod(rq, asia_min=3, asia_max=4, eu_max=4, eu_min=-4)
 
+    file_path_home = r"D:\python\football_analyse_beta2\data\{}\{}\{}_home.csv".format(Events, Rounds, home_name)
+    file_path_away = r"D:\python\football_analyse_beta2\data\{}\{}\{}_away.csv".format(Events, Rounds, away_name)
+    file_history = r"D:\python\football_analyse_beta2\data\{}\{}\{}_history.csv".format(Events, Rounds, home_name)
+
+    file_path = [file_path_home, file_path_away]
+
+    analyse_result = {}  # 分析结果
+
+    try:
+        for path_name in file_path:
+            data = pd.read_csv(path_name)
+            col_name = int(len(data['比赛日期']) / 2)
+            recent_data = data[:col_name]  # 近期数据
+
+            if "home" in path_name:
+                """
+                近期数据处理
+                大小球, 总进球数, 胜平负, 盘路
+                """
+
+                analyse_result["主队近期大小球"] = fenxi.analyse_big_small(recent_data)
+                analyse_result["主队近期总进球数"] = fenxi.analyse_total_goal(recent_data)
+                analyse_result['主队近期胜平负'] = fenxi.analyse_win_draw_lose(recent_data)
+                analyse_result['主队近期盘路'] = fenxi.analyse_plate_road(recent_data)
+
+                """
+                主客场数据分析
+                大小球, 总进球数,比分 胜平负,让球胜平负, 盘路
+                """
+                ha_data = data[col_name:]
+                analyse_result["主队主场大小球"] = fenxi.analyse_big_small(ha_data)
+                analyse_result["主队主场总进球数"] = fenxi.analyse_total_goal(ha_data)
+                analyse_result["主队主场比分"] = fenxi.analyse_score(ha_data)
+                analyse_result['主队主场胜平负'] = fenxi.analyse_win_draw_lose(ha_data)
+                analyse_result['主队主场让球胜平负'] = fenxi.analyse_let_ball_win_draw_lose(ha_data)
+                analyse_result['主队主场盘路'] = fenxi.analyse_plate_road(ha_data)
+                analyse_result['主队主场进失球数'] = fenxi.xa_goals(ha_data)
+
+            elif "away" in path_name:
+                """
+                     近期数据处理
+                     大小球, 总进球数, 胜平负, 盘路
+                     """
+
+                analyse_result["客队近期大小球"] = fenxi.analyse_big_small(recent_data)
+                analyse_result["客队近期总进球数"] = fenxi.analyse_total_goal(recent_data)
+                analyse_result['客队近期胜平负'] = fenxi.analyse_win_draw_lose(recent_data)
+                analyse_result['客队近期盘路'] = fenxi.analyse_plate_road(recent_data)
+
+                """
+                客客场数据分析
+                大小球, 总进球数,比分 胜平负,让球胜平负, 盘路
+                """
+                ha_data = data[col_name:]
+                analyse_result["客队客场大小球"] = fenxi.analyse_big_small(ha_data)
+                analyse_result["客队客场总进球数"] = fenxi.analyse_total_goal(ha_data)
+                analyse_result["客队客场比分"] = fenxi.analyse_score(ha_data)
+                analyse_result['客队客场胜平负'] = fenxi.analyse_win_draw_lose(ha_data)
+                analyse_result['客队客场让球胜平负'] = fenxi.analyse_let_ball_win_draw_lose(ha_data)
+                analyse_result['客队客场盘路'] = fenxi.analyse_plate_road(ha_data)
+                analyse_result['客队客场进失球数'] = fenxi.xa_goals(ha_data)
+
+        """
+        分析历史数据 只分析主队
+        大小球, 总进球数,比分 胜平负,让球胜平负, 盘路
+        """
+
+        data_history = pd.read_csv(file_history)
+        analyse_result["历史大小球"] = fenxi.analyse_big_small(data_history)
+        analyse_result["历史总进球数"] = fenxi.analyse_total_goal(data_history)
+        analyse_result["历史比分"] = fenxi.analyse_score(data_history)
+        analyse_result['历史胜平负'] = fenxi.analyse_win_draw_lose(data_history)
+        analyse_result['历史盘路'] = fenxi.analyse_plate_road(data_history)
+
+        print(analyse_result)
+
+        # return analyse_result
     except Exception as e:
         logger.error("--------------读取文件失败 or 文件不存在---------------------", e)
 
 
 if __name__ == '__main__':
     """主入口"""
-    recent_data_analyse(r"D:\python\football_analyse_beta2\data\K1联赛\第25轮\江原FC_home.csv")
+    a = time.time()
+    recent_data_analyse("k1联赛", "第25轮", "光州FC", "水原FC", rq=0)
+    print(time.time() - a)
+
+
