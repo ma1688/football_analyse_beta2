@@ -5,7 +5,7 @@
 # @Author    :MA-X-J
 # @Software  :PyCharm
 import time
-
+import asyncio
 import pandas as pd
 from colorama import Fore, Style
 
@@ -56,7 +56,7 @@ class AnalyseMethod:
         self.rq = rq
 
     # 亚盘口转换
-    def stoa(self, target_value):
+    async def stoa(self, target_value):
         """
         亚盘转换
         :param target_value: 目标值
@@ -79,7 +79,7 @@ class AnalyseMethod:
 
     # 大小球
     @staticmethod
-    def analyse_big_small(r_data):
+    async def analyse_big_small(r_data):
         """
         大小球分析
         :param r_data:
@@ -107,7 +107,7 @@ class AnalyseMethod:
 
     # 总进球数
     @staticmethod
-    def analyse_total_goal(r_data):
+    async def analyse_total_goal(r_data):
         """
         总进球数分析
         :param r_data:
@@ -134,7 +134,7 @@ class AnalyseMethod:
 
     # 比分
     @staticmethod
-    def analyse_score(r_data):
+    async def analyse_score(r_data):
         """
         比分分析
         :param r_data:
@@ -159,7 +159,7 @@ class AnalyseMethod:
 
     # 胜平负
     @staticmethod
-    def analyse_win_draw_lose(r_data):
+    async def analyse_win_draw_lose(r_data):
         """
         胜平负分析
         :param r_data:
@@ -182,7 +182,7 @@ class AnalyseMethod:
             return False
 
     # 让球胜平负
-    def analyse_let_ball_win_draw_lose(self, r_data):
+    async def analyse_let_ball_win_draw_lose(self, r_data):
         """
         让球胜平负分析
         :param r_data:
@@ -213,7 +213,7 @@ class AnalyseMethod:
 
     # 盘路统计
     @staticmethod
-    def analyse_plate_road(r_data):
+    async def analyse_plate_road(r_data):
         """
         盘路统计
         :param r_data:
@@ -237,7 +237,7 @@ class AnalyseMethod:
 
     # 进失球数
     @staticmethod
-    def xa_goals(r_data):
+    async def xa_goals(r_data):
         """
         进失球数
         :param r_data:
@@ -261,7 +261,7 @@ class AnalyseMethod:
 
 
 # 分析最近数据
-def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
+async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
     """
     分析最近数据
     :param Events: 赛事
@@ -293,23 +293,23 @@ def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
                 大小球, 总进球数, 胜平负, 盘路
                 """
 
-                analyse_result["主队近期大小球"] = fenxi.analyse_big_small(recent_data)
-                analyse_result["主队近期总进球数"] = fenxi.analyse_total_goal(recent_data)
-                analyse_result['主队近期胜平负'] = fenxi.analyse_win_draw_lose(recent_data)
-                analyse_result['主队近期盘路'] = fenxi.analyse_plate_road(recent_data)
+                analyse_result["主队近期大小球"] = await fenxi.analyse_big_small(recent_data)
+                analyse_result["主队近期总进球数"] = await fenxi.analyse_total_goal(recent_data)
+                analyse_result['主队近期胜平负'] = await fenxi.analyse_win_draw_lose(recent_data)
+                analyse_result['主队近期盘路'] = await fenxi.analyse_plate_road(recent_data)
 
                 """
                 主客场数据分析
                 大小球, 总进球数,比分 胜平负,让球胜平负, 盘路
                 """
                 ha_data = data[col_name:]
-                analyse_result["主队主场大小球"] = fenxi.analyse_big_small(ha_data)
-                analyse_result["主队主场总进球数"] = fenxi.analyse_total_goal(ha_data)
-                analyse_result["主队主场比分"] = fenxi.analyse_score(ha_data)
-                analyse_result['主队主场胜平负'] = fenxi.analyse_win_draw_lose(ha_data)
-                analyse_result['主队主场让球胜平负'] = fenxi.analyse_let_ball_win_draw_lose(ha_data)
-                analyse_result['主队主场盘路'] = fenxi.analyse_plate_road(ha_data)
-                analyse_result['主队主场进失球数'] = fenxi.xa_goals(ha_data)
+                analyse_result["主队主场大小球"] = await fenxi.analyse_big_small(ha_data)
+                analyse_result["主队主场总进球数"] = await fenxi.analyse_total_goal(ha_data)
+                analyse_result["主队主场比分"] = await fenxi.analyse_score(ha_data)
+                analyse_result['主队主场胜平负'] = await fenxi.analyse_win_draw_lose(ha_data)
+                analyse_result['主队主场让球胜平负'] = await fenxi.analyse_let_ball_win_draw_lose(ha_data)
+                analyse_result['主队主场盘路'] = await fenxi.analyse_plate_road(ha_data)
+                analyse_result['主队主场进失球数'] = await fenxi.xa_goals(ha_data)
 
             elif "away" in path_name:
                 """
@@ -317,23 +317,23 @@ def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
                      大小球, 总进球数, 胜平负, 盘路
                      """
 
-                analyse_result["客队近期大小球"] = fenxi.analyse_big_small(recent_data)
-                analyse_result["客队近期总进球数"] = fenxi.analyse_total_goal(recent_data)
-                analyse_result['客队近期胜平负'] = fenxi.analyse_win_draw_lose(recent_data)
-                analyse_result['客队近期盘路'] = fenxi.analyse_plate_road(recent_data)
+                analyse_result["客队近期大小球"] = await fenxi.analyse_big_small(recent_data)
+                analyse_result["客队近期总进球数"] = await fenxi.analyse_total_goal(recent_data)
+                analyse_result['客队近期胜平负'] = await fenxi.analyse_win_draw_lose(recent_data)
+                analyse_result['客队近期盘路'] = await fenxi.analyse_plate_road(recent_data)
 
                 """
                 客客场数据分析
                 大小球, 总进球数,比分 胜平负,让球胜平负, 盘路
                 """
                 ha_data = data[col_name:]
-                analyse_result["客队客场大小球"] = fenxi.analyse_big_small(ha_data)
-                analyse_result["客队客场总进球数"] = fenxi.analyse_total_goal(ha_data)
-                analyse_result["客队客场比分"] = fenxi.analyse_score(ha_data)
-                analyse_result['客队客场胜平负'] = fenxi.analyse_win_draw_lose(ha_data)
-                analyse_result['客队客场让球胜平负'] = fenxi.analyse_let_ball_win_draw_lose(ha_data)
-                analyse_result['客队客场盘路'] = fenxi.analyse_plate_road(ha_data)
-                analyse_result['客队客场进失球数'] = fenxi.xa_goals(ha_data)
+                analyse_result["客队客场大小球"] = await fenxi.analyse_big_small(ha_data)
+                analyse_result["客队客场总进球数"] = await fenxi.analyse_total_goal(ha_data)
+                analyse_result["客队客场比分"] = await fenxi.analyse_score(ha_data)
+                analyse_result['客队客场胜平负'] = await fenxi.analyse_win_draw_lose(ha_data)
+                analyse_result['客队客场让球胜平负'] = await fenxi.analyse_let_ball_win_draw_lose(ha_data)
+                analyse_result['客队客场盘路'] = await fenxi.analyse_plate_road(ha_data)
+                analyse_result['客队客场进失球数'] = await fenxi.xa_goals(ha_data)
 
         """
         分析历史数据 只分析主队
@@ -341,11 +341,11 @@ def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
         """
 
         data_history = pd.read_csv(file_history)
-        analyse_result["历史大小球"] = fenxi.analyse_big_small(data_history)
-        analyse_result["历史总进球数"] = fenxi.analyse_total_goal(data_history)
-        analyse_result["历史比分"] = fenxi.analyse_score(data_history)
-        analyse_result['历史胜平负'] = fenxi.analyse_win_draw_lose(data_history)
-        analyse_result['历史盘路'] = fenxi.analyse_plate_road(data_history)
+        analyse_result["历史大小球"] = await fenxi.analyse_big_small(data_history)
+        analyse_result["历史总进球数"] = await fenxi.analyse_total_goal(data_history)
+        analyse_result["历史比分"] = await fenxi.analyse_score(data_history)
+        analyse_result['历史胜平负'] = await fenxi.analyse_win_draw_lose(data_history)
+        analyse_result['历史盘路'] = await fenxi.analyse_plate_road(data_history)
 
         print(analyse_result)
 
@@ -371,6 +371,8 @@ def total_analyse():
 
 if __name__ == '__main__':
     """主入口"""
-    a = time.time()
-    recent_data_analyse("k1联赛", "第25轮", "光州FC", "水原FC", rq=0)
-    print(time.time() - a)
+    for i in range(10):
+        a = time.time()
+        asyncio.run(recent_data_analyse("瑞典甲", "第16轮", "厄斯特松德", "瓦尔贝里", rq=0))
+        print(time.time() - a)
+

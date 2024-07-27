@@ -305,10 +305,6 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     await asyncio.sleep(5, 10)
     asia_results = await asyncio.gather(*asia_tasks, return_exceptions=True)
 
-    data_directory = f'./data/{Events}/{Rounds}'
-    if not os.path.exists(data_directory):
-        os.makedirs(data_directory)
-
     eu_data = []
     asia_data = []
     for result in eu_results:
@@ -321,8 +317,11 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
                 eu_list = await process_eu_data(result['name'], result['data'])
                 eu_data += eu_list
 
+    data_directory = f'./data/eu_odds/{Events}/{Rounds}'
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
     eu_list = pd.DataFrame(eu_data)
-    eu_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_eu_results.csv", index=False)
+    eu_list.to_csv(f"./data/eu_odds/{Events}/{Rounds}/{home_name}_eu_results.csv", index=False)
 
     for result in asia_results:
         # logger.info(f"URL Name: {result['name']}, Data: {result['data']}")
@@ -333,8 +332,13 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
             else:
                 asia_list = await process_asia_data(result['name'], result['data'])
                 asia_data += asia_list
+
+    data_directory = f'./data/asia_odds/{Events}/{Rounds}'
+    if not os.path.exists(data_directory):
+        os.makedirs(data_directory)
+
     asia_list = pd.DataFrame(asia_data)
-    asia_list.to_csv(f"./data/{Events}/{Rounds}/{home_name}_asia_results.csv", index=False)
+    asia_list.to_csv(f"./data/asia_odds/{Events}/{Rounds}/{home_name}_asia_results.csv", index=False)
 
     logger.info(f"{Fore.GREEN}欧亚赔数据处理完成{Style.RESET_ALL}")
 
