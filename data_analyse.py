@@ -369,10 +369,14 @@ def total_analyse():
     pass
 
 
-if __name__ == '__main__':
-    """主入口"""
+async def main():
+    tasks = []
     for i in range(10):
-        a = time.time()
-        asyncio.run(recent_data_analyse("瑞典甲", "第16轮", "厄斯特松德", "瓦尔贝里", rq=0))
-        print(time.time() - a)
+        tasks.append(recent_data_analyse("瑞典甲", "第16轮", "厄斯特松德", "瓦尔贝里", rq=0))
+    await asyncio.gather(*tasks)
 
+
+if __name__ == '__main__':
+    a = time.time()
+    asyncio.run(main())
+    print(time.time() - a)

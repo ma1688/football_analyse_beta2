@@ -76,7 +76,7 @@ async def get_headers():
         "Connection": "keep-alive",
         "Content-Type": "application/x-www-form-urlencoded",
         "X-Requested-With": "XMLHttpRequest",
-        "Cookie": f"WT_FPC=id=undefined:lv={int(time.time()*1000)}:ss={int(time.time()*1000)}",
+        "Cookie": f"WT_FPC=id=undefined:lv={int(time.time() * 1000)}:ss={int(time.time() * 1000)}",
         "Upgrade-Insecure-Requests": "1",
         "Sec-Fetch-Dest": "document",
         "Sec-Fetch-Mode": "navigate",
@@ -109,31 +109,42 @@ async def first_req(data_type, fid_value):
     return Selector(text=html_content)
 
 
-async def second_req(semaphore, url_params, url_name):
+async def second_req(semaphore, url_params, url_name, proxies):
     """
     二次请求详细数据
     :param semaphore: 异步任务数量
     :param url_params: 请求完整的url
     :param url_name: 用于标识请求的名称
+    :param proxies: 代理IP列表
     :return: 包含标识信息和请求结果的字典
     """
-    try:
-        async with semaphore:
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    url=url_params,
-                    headers=await get_headers(),
-                    # headers=he,
-                    timeout=16.688
-                )
-                response.raise_for_status()
-                if response.status_code == 200:
-                    return {"name": url_name, "data": json.loads(response.text)}
-                else:
-                    return {"name": url_name, "data": None}
-    except Exception as e:
-        logger.error(f"二次请求出错: {e}")
-        return {"name": url_name, "data": None}
+    while proxies:
+        proxy = random.choice(proxies)
+        try:
+            async with semaphore:
+                async with httpx.AsyncClient(proxies={"http://": proxy}) as client:
+                    response = await client.get(
+                        url=url_params,
+                        headers=await get_headers(),
+                        timeout=16.688
+                    )
+                    response.raise_for_status()
+                    logger.info(f"代理IP: {proxy} 请求成功")
+                    if response.status_code == 200:
+                        return {"name": url_name, "data": json.loads(response.text)}
+                    else:
+                        return {"name": url_name, "data": None}
+        except httpx.HTTPStatusError as e:
+            if e.response.status_code == 400:
+                logger.error(f"二次请求出错: {e.response.status_code} Bad Request, 更换代理IP")
+                proxies.remove(proxy)
+            else:
+                logger.error(f"二次请求出错: {e}")
+                return {"name": url_name, "data": None}
+        except Exception as e:
+            logger.error(f"二次请求出错: {e}")
+            return {"name": url_name, "data": None}
+    return {"name": url_name, "data": None}
 
 
 async def get_europe_url(fid):
@@ -282,6 +293,19 @@ async def process_asia_data(company_name, asia_data):
         return new_asia_data
 
 
+async def get_proxy():
+    resp = httpx.get("http://1.14.239.79:6008/all/").json()
+    proxy_pool = []
+    for proxies in resp:
+        ip_port = proxies['proxy']
+        region = proxies['region']
+        if "中国" in region:
+            if not ip_port.startswith("http://") and not ip_port.startswith("https://"):
+                ip_port = "http://" + ip_port
+            proxy_pool.append(ip_port)
+    return proxy_pool
+
+
 async def main(fid_value, Events, Rounds, home_name, vs_date):
     """
     Main function to create and run tasks for fetching data from URLs in filtered_url_dict.
@@ -292,13 +316,21 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     eu_tasks = []
     asia_tasks = []
 
-    semaphore = asyncio.Semaphore(2)  # 最多允许5个并发任务
-    # 在创建任务时，传递额外的标识信息
+    semaphore = asyncio.Semaphore(5)  # 最多允许5个并发任务
+
+    # 获取proxy ip
+    proxies = await get_proxy()
+    logger.info(f"获取代理IP成功****")
+    logger.info(f"代理IP数量：{len(proxies)}")
+    logger.info(f"代理IP列表：{proxies}")
+    print()
+
+    # 在创建任务时，传递额外的标识信息和代理IP列表
     for url_name, url in new_eu_url_dict.items():
-        eu_tasks.append(second_req(semaphore, url, url_name))
+        eu_tasks.append(second_req(semaphore, url, url_name, proxies))
 
     for url_name, url in new_asia_url_dict.items():
-        asia_tasks.append(second_req(semaphore, url, url_name))
+        asia_tasks.append(second_req(semaphore, url, url_name, proxies))
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
     eu_results = await asyncio.gather(*eu_tasks, return_exceptions=True)
