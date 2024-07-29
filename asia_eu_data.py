@@ -316,7 +316,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     eu_tasks = []
     asia_tasks = []
 
-    semaphore = asyncio.Semaphore(5)  # 最多允许5个并发任务
+    semaphore = asyncio.Semaphore(3)  # 最多允许5个并发任务
 
     # 获取proxy ip
     proxies = await get_proxy()

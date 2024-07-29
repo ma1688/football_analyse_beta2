@@ -10,17 +10,28 @@
 # @Time      :2024/7/23 下午10:31
 # @Author    :MA-X-J
 # @Software  :PyCharm
+#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+# @FileName  :logger.py
+# @Time      :2024/7/23 下午10:50
+# @Author    :MA-X-J
+# @Software  :PyCharm
 
 import logging
 import os
 import sys
 
 DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FMT = "%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s: %(message)s"
+DEFAULT_LOG_FMT = "%Y-%m-%d %H:%M:%S %(filename)s [line:%(lineno)d] %(levelname)s: %(message)s"
 DEFAULT_LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 DEFAULT_LOG_FILENAME = "run.log"
 
-PATH = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+# 设置日志路径为 ./data/log/run.log
+LOG_DIR = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'data', 'log')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+LOG_FILE_PATH = os.path.join(LOG_DIR, DEFAULT_LOG_FILENAME)
 
 
 class Logger:
@@ -29,7 +40,7 @@ class Logger:
         if not self._logger.handlers:
             self.formatter = logging.Formatter(fmt=DEFAULT_LOG_FMT, datefmt=DEFAULT_LOG_DATETIME_FORMAT)
             self._logger.addHandler(self._get_console_handler())
-            self._logger.addHandler(self._get_file_handler(filename=os.path.join(PATH, DEFAULT_LOG_FILENAME)))
+            self._logger.addHandler(self._get_file_handler(filename=LOG_FILE_PATH))
             self._logger.setLevel(DEFAULT_LOG_LEVEL)
 
         # if python's version is 2, disable requests output info level log
@@ -54,3 +65,4 @@ class Logger:
 
 
 logger = Logger().logger
+
