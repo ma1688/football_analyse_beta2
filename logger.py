@@ -1,15 +1,3 @@
-# !/usr/bin/env python
-# -*- coding:utf-8 -*-
-# @FileName  :logger.py
-# @Time      :2024/7/23 下午10:50
-# @Author    :MA-X-J
-# @Software  :PyCharm
-# !/usr/bin/env python
-# -*- coding:utf-8 -*-
-# @FileName  :logger.py
-# @Time      :2024/7/23 下午10:31
-# @Author    :MA-X-J
-# @Software  :PyCharm
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 # @FileName  :logger.py
@@ -22,7 +10,7 @@ import os
 import sys
 
 DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FMT = "%Y-%m-%d %H:%M:%S %(filename)s [line:%(lineno)d] %(levelname)s: %(message)s"
+DEFAULT_LOG_FMT = "%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s: %(message)s"
 DEFAULT_LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 DEFAULT_LOG_FILENAME = "run.log"
 
@@ -65,4 +53,3 @@ class Logger:
 
 
 logger = Logger().logger
-

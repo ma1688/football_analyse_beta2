@@ -188,7 +188,7 @@ def get_headers():
 
 
 # 请求数据
-def get_zqdc(e=24075):
+def get_zqdc(e=24081):
     """
     获取足球单场
     :return:
