@@ -16,6 +16,34 @@ from parsel import Selector
 
 from logger import logger
 
+def get_proxy(ip_num: int):
+    """
+    获取代理
+    :return: list
+    """
+    url = "https://api.douyadaili.com/proxy/?"
+    data = {
+        "service": "GetIp",
+        "authkey": "7SGItHKgKhLAkRPMh8xX",
+        "num": ip_num,
+        "lifetime": 1,
+        "prot": 0,
+        "format": "json",
+        "distinct": 10
+    }
+    username = "lm1688"
+    password = "lm1688"
+    resp_data = httpx.get(url=url, params=data).json()['data']
+    proxy_list = []
+    for resp in resp_data:
+        ip = resp['ip']
+        port = resp['port']
+        proxy_list.append({
+            "http://": f"http://{username}:{password}@{ip}:{port}",
+            "https://": f"http://{username}:{password}@{ip}:{port}",
+        })
+    return proxy_list
+
 
 def get_random_user_agent():
     """随机获取user_agent"""
@@ -61,6 +89,7 @@ def get_base_data(f_id):
     :param f_id: 比赛ID
     :return: Selector
     """
+    proxy_ip = get_proxy(1)
     base_url = "https://odds.500.com/fenxi/shuju-{}.shtml".format(f_id)
 
     headers = {
@@ -95,7 +124,7 @@ def get_base_data(f_id):
         "TE": "trailers"
     }
     try:
-        resp = httpx.get(url=base_url, headers=headers, timeout=10, verify=False)
+        resp = httpx.get(url=base_url, headers=headers, timeout=10, verify=False, proxies=proxy_ip[0])
         content = resp.content
         # 检测编码格式
         result = chardet.detect(content)

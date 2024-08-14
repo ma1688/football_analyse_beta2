@@ -187,19 +187,46 @@ def get_headers():
     }
 
 
+def get_proxy(ip_num: int):
+    """
+    获取代理
+    :return: list
+    """
+    url = "https://api.douyadaili.com/proxy/?"
+    data = {
+        "service": "GetIp",
+        "authkey": "7SGItHKgKhLAkRPMh8xX",
+        "num": ip_num,
+        "lifetime": 1,
+        "prot": 0,
+        "format": "json",
+        "distinct": 10
+    }
+    username = "lm1688"
+    password = "lm1688"
+    resp_data = httpx.get(url=url, params=data).json()['data']
+    proxy_list = []
+    for resp in resp_data:
+        ip = resp['ip']
+        port = resp['port']
+        proxy_list.append({
+            "http://": f"http://{username}:{password}@{ip}:{port}",
+            "https://": f"http://{username}:{password}@{ip}:{port}",
+        })
+    return proxy_list
+
+
 # 请求数据
-def get_zqdc(e=24081):
+def get_zqdc(e=24083):
     """
     获取足球单场
     :return:
     """
     url = 'https://live.500.com/zqdc.php?e={}'.format(e)
-    proxy = {
-        "http://": "http://127.0.0.1:1688",
-        "https://": "https://127.0.0.1:1688"
-    }
+
+    proxy_ip = get_proxy(1)
     try:
-        resp = httpx.get(url, headers=get_headers(), timeout=10, verify=False)
+        resp = httpx.get(url, headers=get_headers(), timeout=10, verify=False, proxies=proxy_ip[0])
         if resp.status_code == 200:
             return resp.content
         else:

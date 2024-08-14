@@ -348,6 +348,10 @@ async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
         analyse_result['历史盘路'] = await fenxi.analyse_plate_road(data_history)
 
         print(analyse_result)
+        analyse_result = pd.DataFrame(analyse_result)
+        analyse_result.to_excel(r"D:\python\football_analyse_beta2\data\{}\{}\{}_{}_analyse.xlsx".format(Events, Rounds, home_name, away_name), index=False)
+        print(analyse_result)
+        # analyse_result.to_csv(r"D:\python\football_analyse_beta2\data\{}\{}\{}_{}_analyse.csv".format(Events, Rounds, home_name, away_name), index=False)
 
         # return analyse_result
     except Exception as e:
@@ -371,9 +375,10 @@ def total_analyse():
 
 async def main():
     tasks = []
-    for i in range(10):
-        tasks.append(recent_data_analyse("瑞典甲", "第16轮", "厄斯特松德", "瓦尔贝里", rq=0))
+    for i in range(1):
+        tasks.append(recent_data_analyse("奥运女足", "分组赛", "巴西女足", "西班牙女足", rq=0))
     await asyncio.gather(*tasks)
+
 
 
 if __name__ == '__main__':
