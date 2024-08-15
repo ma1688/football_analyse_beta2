@@ -281,10 +281,10 @@ async def process_asia_data(company_name, asia_data):
             away_team = parts[2]  # 客队名称
             result1 = tree.xpath('//td/span/text()')[0]
             odds1 = tree.xpath('//td[position() > 7 and position() < 16]/text()')
-            row_data = {"欧盘公司": company_name, "联赛": league1, "日期": date1, "主队": home_team, "比分": score,
+            row_data = {"亚盘公司": company_name, "联赛": league1, "日期": date1, "主队": home_team, "比分": score,
                         "客队": away_team,
-                        "结果": result1,
-                        "赔率": odds1}
+                        "盘路": result1,
+                        "终赔": odds1}
             new_asia_data.append(row_data)
         return new_asia_data
 

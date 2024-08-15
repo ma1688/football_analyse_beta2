@@ -4,15 +4,16 @@
 # @Time      :2024/7/26 下午9:37
 # @Author    :MA-X-J
 # @Software  :PyCharm
-import time
 import asyncio
+import time
+
 import pandas as pd
 from colorama import Fore, Style
 
 from logger import logger
 
 
-class AnalyseMethod:
+class BaseAnalyseMethod:
     def __init__(self, rq: int, asia_min: int, asia_max: int, eu_max: int, eu_min: int):
         self.pan_dict = {
             "受平手/半球": 0.25,
@@ -260,6 +261,234 @@ class AnalyseMethod:
             return False
 
 
+class EuAnalyseMethod:
+    def __init__(self, data_path, rq: int, new_odds: list, eu_value: float):
+        self.new_odds = new_odds
+        self.eu_value = eu_value
+        self.rq = rq
+        self.data_path = data_path
+
+    async def analyse_eu(self, data):
+        """
+        胜平负分析
+        :return:
+        """
+        spf_dict = {"win": 0, "draw": 0, "lose": 0}
+        rq_qpf_dict = {"win": 0, "draw": 0, "lose": 0}
+
+        # 读取比分
+        scores = data['比分'].str.split(':', expand=True).astype(int)
+
+        # *****************************************胜平负分析****************************************
+        spf_dict["win"] = (scores[0] > scores[1]).sum()
+        spf_dict["draw"] = (scores[0] == scores[1]).sum()
+        spf_dict["lose"] = (scores[0] < scores[1]).sum()
+        # ****************************************胜平负分析****************************************
+
+        # ****************************************让球胜平负分析****************************************
+        rq_qpf_dict["win"] = (scores[0] + self.rq > scores[1]).sum()
+        rq_qpf_dict["draw"] = (scores[0] + self.rq == scores[1]).sum()
+        rq_qpf_dict["lose"] = (scores[0] + self.rq < scores[1]).sum()
+        # ****************************************让球胜平负分析****************************************
+
+        # ****************************************大小球分析****************************************
+        sb_dict = {"big": (scores[0] + scores[1] >= 3).sum(), "small": (scores[0] + scores[1] <= 3).sum()}
+
+        # ****************************************大小球分析****************************************
+
+        # ****************************************进球数分析****************************************
+        total_goals_dict = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7+": 0}
+        total_goals = scores[0] + scores[1]
+        total_goals_dict["0"] = (total_goals == 0).sum()
+        total_goals_dict["1"] = (total_goals == 1).sum()
+        total_goals_dict["2"] = (total_goals == 2).sum()
+        total_goals_dict["3"] = (total_goals == 3).sum()
+        total_goals_dict["4"] = (total_goals == 4).sum()
+        total_goals_dict["5"] = (total_goals == 5).sum()
+        total_goals_dict["6"] = (total_goals == 6).sum()
+        total_goals_dict["7+"] = (total_goals >= 7).sum()
+
+        # ****************************************进球数分析****************************************
+
+        # ****************************************比分分析****************************************
+        score_dict = {}
+        for i in range(len(scores)):
+            score = str(scores.iloc[i, 0]) + "-" + str(scores.iloc[i, 1])
+            if score in score_dict:
+                score_dict[score] += 1
+            else:
+                score_dict[score] = 1
+        # ****************************************比分分析****************************************
+
+        # Calculate total number of matches
+        total_matches = len(scores)
+
+        # Convert counts to percentages
+        spf_dict = {k: (v / total_matches) * 100 for k, v in spf_dict.items()}
+        rq_qpf_dict = {k: (v / total_matches) * 100 for k, v in rq_qpf_dict.items()}
+        sb_dict = {k: (v / total_matches) * 100 for k, v in sb_dict.items()}
+        total_goals_dict = {k: (v / total_matches) * 100 for k, v in total_goals_dict.items()}
+        score_dict = {k: (v / total_matches) * 100 for k, v in score_dict.items()}
+
+        return spf_dict, rq_qpf_dict, sb_dict, total_goals_dict, score_dict
+
+    async def eu_data(self):
+        data = pd.read_csv(self.data_path)
+        data['终赔'] = data['终赔'].apply(lambda x: [float(ii) for ii in eval(x)])
+
+        # 过滤出终赔符合条件的数据  误差在每个数据的-+0.08
+        new_data = data[
+            (data['终赔'].apply(
+                lambda x: all(
+                    [self.new_odds[i] - self.eu_value <= x[i] <= self.new_odds[i] + self.eu_value for i in range(3)])))]
+
+        logger.info(f"{Fore.GREEN}符合条件的数据: {len(new_data)}{Style.RESET_ALL}\t\t"
+                    f"{Fore.GREEN} odds误差: {self.eu_value}{Style.RESET_ALL}")
+        print(f"符合条件的数据: \n{new_data}")
+        print(await self.analyse_eu(new_data))
+
+
+class AsiaAnalyseMethod:
+    def __init__(self, asia_path, rq: int, new_asia, asia_value: float):
+        self.pan_dict = {
+            "受平手/半球": 0.25,
+            "受半球": 0.5,
+            "受半球/一球": 0.75,
+            "受一球": 1,
+            "受一球/球半": 1.25,
+            "受球半": 1.5,
+            "受球半/两球": 1.75,
+            "受两球": 2,
+            "受两球/两球半": 2.25,
+            "受两球半": 2.5,
+            "受两球半/三球": 2.75,
+            "受三球": 3,
+            "受三球/三球半": 3.25,
+            "受三球半": 3.5,
+            "受三球半/四球": 3.75,
+            "受四球": 4,
+            "平手": 0,
+            "平手/半球": -0.25,
+            "半球": -0.5,
+            "半球/一球": -0.75,
+            "一球": -1,
+            "一球/球半": -1.25,
+            "球半": -1.5,
+            "球半/两球": -1.75,
+            "两球": -2,
+            "两球/两球半": -2.25,
+            "两球半": -2.5,
+            "两球半/三球": -2.75,
+            "三球": -3,
+            "三球/三球半": -3.25,
+            "三球半": -3.5,
+            "三球半/四球": -3.75,
+            "四球": -4,
+        }
+        self.rq = rq
+        self.asia_value = asia_value
+        self.asia_path = asia_path
+        self.new_odds = new_asia
+
+    def stoa(self, target_value):
+        """
+        亚盘转换
+        :param target_value: 目标值
+        :return: 转换后的盘口
+        """
+        try:
+            new_pan = self.pan_dict[target_value]
+            return new_pan
+        except Exception as e:
+            logger.error(f"{Fore.RED}转换出错: {e}{Style.RESET_ALL}")
+            return False
+
+    async def analyse_asia(self, data):
+        """
+        亚盘分析
+        :return:
+        """
+        if data.empty:
+            return False
+        spf_dict = {"win": 0, "draw": 0, "lose": 0}
+        rq_qpf_dict = {"win": 0, "draw": 0, "lose": 0}
+
+        # 读取比分
+        scores = data['比分'].str.split(':', expand=True).astype(int)
+
+        # *****************************************胜平负分析****************************************
+        spf_dict["win"] = (scores[0] > scores[1]).sum()
+        spf_dict["draw"] = (scores[0] == scores[1]).sum()
+        spf_dict["lose"] = (scores[0] < scores[1]).sum()
+        # ****************************************胜平负分析****************************************
+
+        # ****************************************让球胜平负分析****************************************
+        rq_qpf_dict["win"] = (scores[0] + self.rq > scores[1]).sum()
+        rq_qpf_dict["draw"] = (scores[0] + self.rq == scores[1]).sum()
+        rq_qpf_dict["lose"] = (scores[0] + self.rq < scores[1]).sum()
+        # ****************************************让球胜平负分析****************************************
+
+        # ****************************************大小球分析****************************************
+        sb_dict = {"big": (scores[0] + scores[1] >= 3).sum(), "small": (scores[0] + scores[1] <= 3).sum()}
+
+        # ****************************************大小球分析****************************************
+
+        # ****************************************进球数分析****************************************
+        total_goals_dict = {"0": 0, "1": 0, "2": 0, "3": 0, "4": 0, "5": 0, "6": 0, "7+": 0}
+        total_goals = scores[0] + scores[1]
+        total_goals_dict["0"] = (total_goals == 0).sum()
+        total_goals_dict["1"] = (total_goals == 1).sum()
+        total_goals_dict["2"] = (total_goals == 2).sum()
+        total_goals_dict["3"] = (total_goals == 3).sum()
+        total_goals_dict["4"] = (total_goals == 4).sum()
+        total_goals_dict["5"] = (total_goals == 5).sum()
+        total_goals_dict["6"] = (total_goals == 6).sum()
+        total_goals_dict["7+"] = (total_goals >= 7).sum()
+
+        # ****************************************进球数分析****************************************
+
+        # ****************************************比分分析****************************************
+        score_dict = {}
+        for i in range(len(scores)):
+            score = str(scores.iloc[i, 0]) + "-" + str(scores.iloc[i, 1])
+            if score in score_dict:
+                score_dict[score] += 1
+            else:
+                score_dict[score] = 1
+        # ****************************************比分分析****************************************
+
+        # ****************************************盘路分析****************************************
+        pr_dict = {"win": ((data['盘路'] == '赢').sum()),
+                   'zou': (data['盘路'] == '走').sum(),
+                   'lose': (data['盘路'] == '输').sum()}
+        # ****************************************盘路分析****************************************
+        # Calculate total number of matches
+        total_matches = len(scores)
+
+        # Convert counts to percentages
+        spf_dict = {k: (v / total_matches) * 100 for k, v in spf_dict.items()}
+        rq_qpf_dict = {k: (v / total_matches) * 100 for k, v in rq_qpf_dict.items()}
+        sb_dict = {k: (v / total_matches) * 100 for k, v in sb_dict.items()}
+        total_goals_dict = {k: (v / total_matches) * 100 for k, v in total_goals_dict.items()}
+        score_dict = {k: (v / total_matches) * 100 for k, v in score_dict.items()}
+        pr_dict = {k: (v / total_matches) * 100 for k, v in pr_dict.items()}
+        return spf_dict, rq_qpf_dict, sb_dict, total_goals_dict, score_dict, pr_dict
+
+    async def asia_data(self):
+        data = pd.read_csv(self.asia_path)
+        data['终赔'] = data['终赔'].apply(lambda x: [eval(x)[0], self.stoa(eval(x)[1]), eval(x)[2]])
+
+        # 过滤出终赔符合条件的数据  误差在每个数据的-+0.08
+        new_data = data[(data['终赔'].apply(lambda x: all(
+            [float(self.new_odds[i]) - float(self.asia_value) <= float(x[i]) <= float(self.new_odds[i]) + float(
+                self.asia_value) for i in range(3)])))]
+
+        logger.info(f"{Fore.GREEN}符合条件的数据: {len(new_data)}{Style.RESET_ALL}\t\t"
+                    f"{Fore.GREEN} odds误差: {self.asia_value}{Style.RESET_ALL}")
+        print(f"符合条件的数据: \n{new_data}")
+        print(await self.analyse_asia(new_data))
+
+
 # 分析最近数据
 async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
     """
@@ -271,7 +500,7 @@ async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
     :param rq: 让球
     :return:
     """
-    fenxi = AnalyseMethod(rq, asia_min=3, asia_max=4, eu_max=4, eu_min=-4)
+    fenxi = BaseAnalyseMethod(rq, asia_min=3, asia_max=4, eu_max=4, eu_min=-4)
 
     file_path_home = r"D:\python\football_analyse_beta2\data\{}\{}\{}_home.csv".format(Events, Rounds, home_name)
     file_path_away = r"D:\python\football_analyse_beta2\data\{}\{}\{}_away.csv".format(Events, Rounds, away_name)
@@ -348,41 +577,43 @@ async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
         analyse_result['历史盘路'] = await fenxi.analyse_plate_road(data_history)
 
         print(analyse_result)
-        analyse_result = pd.DataFrame(analyse_result)
-        analyse_result.to_excel(r"D:\python\football_analyse_beta2\data\{}\{}\{}_{}_analyse.xlsx".format(Events, Rounds, home_name, away_name), index=False)
-        print(analyse_result)
-        # analyse_result.to_csv(r"D:\python\football_analyse_beta2\data\{}\{}\{}_{}_analyse.csv".format(Events, Rounds, home_name, away_name), index=False)
-
-        # return analyse_result
     except Exception as e:
         logger.error("--------------读取文件失败 or 文件不存在---------------------", e)
 
 
 # 分析欧盘数据
-def eu_odds_analyse():
-    pass
+async def eu_odds_analyse():
+    """
+    欧盘数据分析
+    :return:
+    """
+    eu_analyse = EuAnalyseMethod(r"D:\python\football_analyse_beta2\data\eu_odds\欧超杯\决赛\皇家马德里_eu_results.csv",
+                                 -1, [1.54, 4.50, 5.56], 0.268)
+    await eu_analyse.eu_data()
 
 
 # 分析亚盘数据
-def asia_odds_analyse():
-    pass
+async def asia_odds_analyse():
+    """
+    亚盘数据分析
+    :return:
+    """
+    asia_analyse = AsiaAnalyseMethod(
+        r"D:\python\football_analyse_beta2\data\asia_odds\欧超杯\决赛\皇家马德里_asia_results.csv",
+        -1, [0.930, -1.008, 0.914], 0.0168)
+    await asia_analyse.asia_data()
 
 
 # 总分析
-def total_analyse():
+async def total_analyse():
+    """
+    总分析
+    :return:
+    """
     pass
-
-
-async def main():
-    tasks = []
-    for i in range(1):
-        tasks.append(recent_data_analyse("奥运女足", "分组赛", "巴西女足", "西班牙女足", rq=0))
-    await asyncio.gather(*tasks)
-
 
 
 if __name__ == '__main__':
     a = time.time()
-    asyncio.run(main())
+    asyncio.run(asia_odds_analyse())
     print(time.time() - a)
-

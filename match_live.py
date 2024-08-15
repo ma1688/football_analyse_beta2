@@ -18,6 +18,7 @@ from prettytable import PrettyTable
 
 from asia_eu_data import get_eu_asia
 from base_data import main_base_data
+from data_analyse import recent_data_analyse
 from logger import logger
 
 
