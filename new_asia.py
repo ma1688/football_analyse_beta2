@@ -118,7 +118,7 @@ def get_headers(data_type='europe_jczq'):
 
 
 # ##############################数据获取################################
-def get_asia_odds(fid):
+def get_instant_asia_odds(fid):
     """
     获取各家盘口url
     :param fid:
@@ -153,29 +153,54 @@ def get_asia_odds(fid):
         "/html/body/div[9]/div[3]/table/tbody/tr[2]/td[4]/table/tbody/tr/td[2]"
         '/html/body/div[9]/div[3]/table/tbody/tr[3]/td[5]/table/tbody/tr/td[2]'
 
-        # print(selector.xpath(avg_now_xpath).getall()[4:5])
-        # print(selector.xpath(max_now_xpath).getall())
-        # print(selector.xpath(min_now_xpath).getall()[1:])
-        # print()
-        # print(selector.xpath(avg_last_xpath).getall()[:1])
-        # print(selector.xpath(max_last_xpath).getall())
-        # print(selector.xpath(min_last_xpath).getall()[1:])
+        instant_odds_xpath = "//tr[1]/td[3]/table/tbody/tr/td/text()"
+        instant_odds_list = selector.xpath(instant_odds_xpath).getall()[3:6]
+        # print(f"即时数据: {instant_odds_list}")
+        # print(selector.xpath("//tr[1]/td[3]/table/tbody/tr/td/text()").getall()[3:6])
 
         "转换亚盘值"
         avg_now_value = selector.xpath(avg_now_xpath).getall()[4:5][0]
         max_now_value = asian_handicap_convert(selector.xpath(max_now_xpath).getall()[0])
         min_now_value = asian_handicap_convert(selector.xpath(min_now_xpath).getall()[1:][0])
-        print(f"即时亚盘均值: {avg_now_value}  最大值: {max_now_value}   最小值: {min_now_value}")
+        # print(f"即时亚盘均值: {avg_now_value}  最大值: {max_now_value}   最小值: {min_now_value}")
 
         avg_last_value = asian_handicap_convert(selector.xpath(avg_last_xpath).getall()[:1][0])
         max_last_value = asian_handicap_convert(selector.xpath(max_last_xpath).getall()[0])
         min_last_value = asian_handicap_convert(selector.xpath(min_last_xpath).getall()[1:][0])
-        print(f"初盘亚盘均值: {avg_last_value}  最大值: {max_last_value}   最小值: {min_last_value}")
+        # print(f"初盘亚盘均值: {avg_last_value}  最大值: {max_last_value}   最小值: {min_last_value}")
+
+        return [float(x) for x in instant_odds_list]
 
     except Exception as e:
         print(f"get各家url时出错: {e}\r\n")
 
 
+def get_instant_europe_odds(fid):
+    """获取即时欧赔"""
+    url = f"//odds.500.com/fenxi/ouzhi-{fid}.shtml"
+    try:
+        response = httpx.get(url='https:' + url, headers=get_headers(), verify=False, timeout=8.8)
+
+        content = response.content
+        # 检测编码格式
+        result = chardet.detect(content)
+
+        encoding = result['encoding']
+        # 解码HTML代码片段
+        html_content = content.decode(encoding, 'ignore')
+
+        selector = Selector(text=html_content)
+
+        instant_odds_xpath = "//tr[1]/td[3]/table/tbody/tr[2]/td/text()"
+        instant_odds_list = selector.xpath(instant_odds_xpath).getall()[3:]
+        # print(f"即时数据: {instant_odds_list}")
+
+        return [float(x) for x in instant_odds_list]
+    except Exception as e:
+        print(f"get各家url时出错: {e}\r\n")
+
+
 if __name__ == "__main__":
-    fid = 1092967
-    get_asia_odds(fid)
+    fid = 1136136
+    print(get_instant_asia_odds(fid))
+    print(get_instant_europe_odds(fid))

@@ -87,7 +87,7 @@ async def get_headers():
     }
 
 
-async def first_req(data_type, fid_value,proxy):
+async def first_req(data_type, fid_value, proxy):
     """基础req
     获取url
     :param proxy:
@@ -143,9 +143,9 @@ async def second_req(semaphore, url_params, url_name, proxies):
         return {"name": url_name, "data": None}
 
 
-async def get_europe_url(fid,proxy):
+async def get_europe_url(fid, proxy):
     """获取欧赔初盘同赔url"""
-    resp = await first_req("ouzhi", fid,proxy)
+    resp = await first_req("ouzhi", fid, proxy)
     url_name = resp.xpath('//tr/td[2]/p/a/span[@class="quancheng"]/text()').getall()
     url_list = resp.xpath('//tr/td[7]/a[3]/@href').getall()
     url_dict = dict(zip(url_name, url_list))
@@ -177,12 +177,12 @@ async def convert_to_datetime(a):
     return date_time_obj
 
 
-async def get_asia_url(fid, vs_date,proxy):
+async def get_asia_url(fid, vs_date, proxy):
     """获取亚赔初盘同赔url"""
     # 对vsdate处理
     new_vs_date = await convert_to_datetime(vs_date)
     # 1. 获取各家亚赔公司的url
-    resp = await first_req(f"yazhi", fid,proxy)
+    resp = await first_req(f"yazhi", fid, proxy)
     url_name = resp.xpath('//tr/td[2]/p/a/span[@class="quancheng"]/text()').getall()  # 公司名称
     url_list = resp.xpath('//tr/td[7]/a[3]/@href').getall()  # 公司url
 
@@ -224,7 +224,13 @@ async def get_eu_asia(choose_list: list):
         away_name = match_data.get('客队', None)
         score = match_data.get('比分', None)
         rq = match_data.get('让球', None)
-        await main(fid_value, Events, Rounds, home_name, matches_time)
+
+        # 判断数据是否存在
+        if os.path.exists(f'./data/asia_odds/{Events}/{Rounds}/{home_name}_asia_results.csv'):
+            logger.info("\033[92m已经存在数据文件\033[0m")
+            continue
+        else:
+            await main(fid_value, Events, Rounds, home_name, matches_time)
 
 
 async def process_eu_data(company_name, eu_data):
@@ -334,7 +340,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
     eu_tasks = []
     asia_tasks = []
 
-    semaphore = asyncio.Semaphore(5)  # 最多允许5个并发任务
+    semaphore = asyncio.Semaphore(3)  # 最多允许5个并发任务
 
     # 在创建任务时，传递额外的标识信息和代理IP列表
     for url_name, url in new_eu_url_dict.items():
@@ -345,7 +351,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
 
     # 处理结果时，可以通过标识信息区分每个任务的返回值
     eu_results = await asyncio.gather(*eu_tasks, return_exceptions=True)
-    await asyncio.sleep(2, 5)
+    await asyncio.sleep(1, 3)
     asia_results = await asyncio.gather(*asia_tasks, return_exceptions=True)
 
     eu_data = []
@@ -355,7 +361,7 @@ async def main(fid_value, Events, Rounds, home_name, vs_date):
         if result['data'] is not None:
             if result['data']['counts'] == [0, 0, 0]:
                 logger.info(f"{Fore.RED}{result['name']}欧赔同盘数据为空{Style.RESET_ALL}")
-                time.sleep(1.6888)
+                time.sleep(0.8168)
             else:
                 eu_list = await process_eu_data(result['name'], result['data'])
                 eu_data += eu_list

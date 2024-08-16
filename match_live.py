@@ -18,7 +18,7 @@ from prettytable import PrettyTable
 
 from asia_eu_data import get_eu_asia
 from base_data import main_base_data
-from data_analyse import recent_data_analyse
+from data_analyse import total_analyse
 from logger import logger
 
 
@@ -285,6 +285,10 @@ def main(choose_list):
     :return:
     """
     at = time.time()
+    # 1. 获取基本数据
+    main_base_data(choose_list)
+    # 2. 获取欧赔亚盘数据
+    asyncio.run(get_eu_asia(choose_list))
     for match_data in choose_list:
         fid_value = match_data.get('fid', None)
         cnum = match_data.get('场次', None)
@@ -296,25 +300,40 @@ def main(choose_list):
         away_name = match_data.get('客队', None)
         score = match_data.get('比分', None)
         rq = match_data.get('让球', None)
+        if rq is None:
+            rq = 0
 
-    main_base_data(chose_list)
-    asyncio.run(get_eu_asia(chose_list))
+        # 3. 数据分析
+        analyse_data = asyncio.run(total_analyse(fid_value, Events, Rounds, home_name, away_name, [0.168, 0.368], rq))
+        print(analyse_data)
     logger.info(f"耗时: {time.time() - at}s")
+
+
+def show_data(data: dict):
+    """
+    :param data:
+    :return:
+    """
+    # 基本数据展示
+
+    # 欧赔数据展示
+    # 亚盘数据展示
 
 
 if __name__ == '__main__':
     html = get_zqdc()
     selector = parse_html_content(html)
+
     while True:
         if selector:
             while True:
                 chose_list = []
                 match_list = select_data(selector)
-                # insert_match_data_to_db(match_list)
-                choose = input(f"请选择你想要的比赛场次范围(例如:1-8或1): ")
+                choose = input("请选择你想要的比赛场次范围(例如:1-8或1)，输入'++'退出: ")
                 try:
                     # 输入'++'退出
                     if choose == '++':
+                        logger.info("用户选择退出程序。")
                         break
                     if ',' in choose:
                         start_match, end_match = choose.split(',')
@@ -329,11 +348,22 @@ if __name__ == '__main__':
                                 logger.info(match)
                                 chose_list.append(match)
                 except ValueError:
-                    logger.warning(
-                        "输入的场次范围不正确，请重新输入。")
+                    logger.warning("输入的场次范围不正确，请重新输入。")
 
+                # 调用主程序处理选中的比赛场次
                 main(chose_list)
 
+                # 询问用户是否继续
+                continue_choice = input("处理完毕。是否继续选择比赛场次？(Y继续/其他键退出): ")
+                if continue_choice.lower() != 'y':
+                    logger.info("用户选择退出程序。")
+                    break
+
+            # 检查是否需要退出外层循环
+            if choose == '++' or continue_choice.lower() != 'y':
+                logger.info("程序已退出。")
+                break
         else:
             logger.error("Selector is None.")
             break
+

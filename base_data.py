@@ -16,6 +16,7 @@ from parsel import Selector
 
 from logger import logger
 
+
 def get_proxy(ip_num: int):
     """
     获取代理
@@ -278,9 +279,15 @@ def main_base_data(choose_list: list):
         rq = match_data.get('让球', None)
         logger.info(
             f"比赛ID: {fid_value} 场次: {cnum} 赛事: {Events} 轮次: {Rounds} 比赛时间: {matches_time} 状态: {state} 主队: {home_name} 客队: {away_name} 比分: {score} 让球: {rq}")
-        sr_data = get_base_data(fid_value)
-        parse_html(sr_data, Events, Rounds, home_name, away_name)
-        time.sleep(1.68)
+        # 判断是否存在数据文件
+        if os.path.exists(f'./data/{Events}/{Rounds}/{home_name}_home.csv'):
+            logger.info("\033[92m已经存在数据文件\033[0m")
+            continue
+        else:
+            sr_data = get_base_data(fid_value)
+            parse_html(sr_data, Events, Rounds, home_name, away_name)
+            time.sleep(1.68)
+
 
 #
 # if __name__ == '__main__':
