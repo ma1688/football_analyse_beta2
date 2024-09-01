@@ -163,22 +163,7 @@ def get_headers():
         "Accept-Encoding": "gzip, deflate, br, zstd",
         "Referer": "https://live.500.com/",
         "Connection": "keep-alive",
-        "Cookie": "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl"
-                  "%3DLP86gRTLBgxW_wOoE2V5pJMmvY3MJsJKu29lHjEcGAXgTTOj98hJjnq41gwD7mDk%26wd%3D%26eqid"
-                  "%3De1a103a50003858b0000000664f046e4; isautologin=1; isagree=1; "
-                  "Hm_lvt_4f816d475bb0b9ed640ae412d6b42cab=1719823600; "
-                  "_jzqa=1.699021464142686100.1719823602.1719823602.1719826778.2; "
-                  "__utma=63332592.1917194613.1719823603.1719823603.1719823603.1; "
-                  "__utmz=63332592.1719823603.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); "
-                  "WT_FPC=id=undefined:lv=1721706756715:ss=1721706753624; "
-                  "_qzja=1.585134939.1719823987243.1719823987243.1719823987243.1719824001506.1719824003457.0.0.0.3.1; "
-                  "_jzqx=1.1719826778.1719826778.1.jzqsr=odds%2E500%2Ecom|jzqct=/fenxi1/yazhi_same%2Ephp.-; "
-                  "ck_regchanel=_ad0.7232252524252528; regfrom=0%7Cala%7Cbaidu; ck_RegUrl=odds.500.com; "
-                  "pcTouchDownload500App=op_chupan; "
-                  "ck=MjAyMzA4MTgwMDAiMWIwMTIyNjdiYmZh; sdc_session=1692587441720; "
-                  "motion_id=1721706756167_0.10349371366674198; Hm_lpvt_4f816d475bb0b9ed640ae412d6b42cab=1719824729; "
-                  "__utmc=63332592; _qzjc=1; _jzqc=1; sdc_userflag=1721706746200::1721706756715::3; "
-                  "CLICKSTRN_ID=102.123.233.233-1641645328.322497::9EC7C1B74FA330E6AE13CA38948C2672",
+        "Cookie": "ck_RegFromUrl=https%3A//www.baidu.com/link%3Furl",
         "Upgrade-Insecure-Requests": "1",
         "Sec-Fetch-Dest": "document",
         "Sec-Fetch-Mode": "navigate",
@@ -284,6 +269,7 @@ def main(choose_list):
     主入口
     :return:
     """
+
     at = time.time()
     # 1. 获取基本数据
     main_base_data(choose_list)
@@ -303,25 +289,16 @@ def main(choose_list):
         if rq is None:
             rq = 0
 
-        # 3. 数据分析
-        analyse_data = asyncio.run(total_analyse(fid_value, Events, Rounds, home_name, away_name, [0.168, 0.368], rq))
+        # # 3. 数据分析
+        analyse_data = asyncio.run(total_analyse(fid_value, Events, Rounds, home_name, away_name, [0.0818, 0.3168], rq))
         print(analyse_data)
+        time.sleep(0.68)
+
     logger.info(f"耗时: {time.time() - at}s")
 
 
-def show_data(data: dict):
-    """
-    :param data:
-    :return:
-    """
-    # 基本数据展示
-
-    # 欧赔数据展示
-    # 亚盘数据展示
-
-
 if __name__ == '__main__':
-    html = get_zqdc()
+    html = get_zqdc(24091)
     selector = parse_html_content(html)
 
     while True:

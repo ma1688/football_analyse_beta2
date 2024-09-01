@@ -13,6 +13,8 @@ from colorama import Fore, Style
 from logger import logger
 from new_asia import get_instant_asia_odds, get_instant_europe_odds
 
+pd.set_option('display.max_columns', 128)
+
 
 class BaseAnalyseMethod:
     def __init__(self, rq: int):
@@ -306,17 +308,34 @@ class BaseAnalyseMethod:
             pr_dict = {"win": ((data['盘路'] == '赢盘').sum()),
                        'zou': (data['盘路'] == '走盘').sum(),
                        'lose': (data['盘路'] == '输盘').sum()}
-            pr_dict = {k: (v / total_matches) * 100 for k, v in pr_dict.items()}
+            pr_dict = {k: (v / total_matches) for k, v in pr_dict.items()}
         # ****************************************盘路分析****************************************
 
         # Convert counts to percentages
-        spf_dict = {k: (v / total_matches) * 100 for k, v in spf_dict.items()}
-        rq_qpf_dict = {k: (v / total_matches) * 100 for k, v in rq_qpf_dict.items()}
-        sb_dict = {k: (v / total_matches) * 100 for k, v in sb_dict.items()}
-        total_goals_dict = {k: (v / total_matches) * 100 for k, v in total_goals_dict.items()}
-        score_dict = {k: (v / total_matches) * 100 for k, v in score_dict.items()}
+        spf_dict = {k: (v / total_matches)for k, v in spf_dict.items()}
+        rq_qpf_dict = {k: (v / total_matches) for k, v in rq_qpf_dict.items()}
+        sb_dict = {k: (v / total_matches) for k, v in sb_dict.items()}
+        total_goals_dict = {k: (v / total_matches)for k, v in total_goals_dict.items()}
+        score_dict = {k: (v / total_matches) for k, v in score_dict.items()}
 
         return spf_dict, rq_qpf_dict, sb_dict, total_goals_dict, score_dict, pr_dict
+
+
+class TotalAnalyse:
+    """总分析方法"""
+
+    def __init__(self):
+        self.weights = {
+            'sb_goals': {
+                '主队近期大小球': 0.2,
+                '主队主场大小球': 0.15,
+                '客队近期大小球': 0.2,
+                '客队客场大小球': 0.15,
+                '历史大小球': 0.1,
+                'eu_odds': 0.1,
+                'asia_odds': 0.1
+            }
+        }
 
 
 # 分析最近数据
@@ -334,8 +353,6 @@ async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
 
     file_path_home = r"D:\python\football_analyse_beta2\data\{}\{}\{}_home.csv".format(Events, Rounds, home_name)
     file_path_away = r"D:\python\football_analyse_beta2\data\{}\{}\{}_away.csv".format(Events, Rounds, away_name)
-    file_history = r"D:\python\football_analyse_beta2\data\{}\{}\{}_history.csv".format(Events, Rounds, home_name)
-
     file_path = [file_path_home, file_path_away]
 
     analyse_result = {}  # 分析结果
@@ -394,11 +411,15 @@ async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
                 analyse_result['客队客场盘路'] = await fenxi.analyse_plate_road(ha_data)
                 analyse_result['客队客场进失球数'] = await fenxi.xa_goals(ha_data)
 
+    except FileExistsError as fi:
+        logger.error("主客场数据文件不存在", fi)
+    try:
         """
         分析历史数据 只分析主队
         大小球, 总进球数,比分 胜平负,让球胜平负, 盘路
         """
-
+        file_history = r"D:\python\football_analyse_beta2\data\{}\{}\{}_history.csv".format(Events, Rounds,
+                                                                                            home_name)
         data_history = pd.read_csv(file_history)
         analyse_result["历史大小球"] = await fenxi.analyse_big_small(data_history)
         analyse_result["历史总进球数"] = await fenxi.analyse_total_goal(data_history)
@@ -406,9 +427,11 @@ async def recent_data_analyse(Events, Rounds, home_name, away_name, rq=0):
         analyse_result['历史胜平负'] = await fenxi.analyse_win_draw_lose(data_history)
         analyse_result['历史盘路'] = await fenxi.analyse_plate_road(data_history)
 
+    except FileExistsError as f:
+        logger.error("历史数据文件不存在", f)
+
+    finally:
         return analyse_result
-    except Exception as e:
-        logger.error("--------------读取文件失败 or 文件不存在---------------------", e)
 
 
 # 分析欧盘数据
@@ -424,6 +447,7 @@ async def eu_odds_analyse(fid, Events, Rounds, home_name, deviation_value, rq=0)
                                                                                                 home_name)
     data = pd.read_csv(data_path)
     data['终赔'] = data['终赔'].apply(lambda x: [float(ii) for ii in eval(x)])
+    data['赛事'] = data['赛事'].apply(lambda x: x.replace(" ", "").strip())
 
     logger.warning(f"赛事: {Events}   主队: {home_name}   即时赔率: {new_odds}  匹配误差: {deviation_value}")
 
@@ -434,25 +458,32 @@ async def eu_odds_analyse(fid, Events, Rounds, home_name, deviation_value, rq=0)
     enable_event_filter = False
     if filter_events:
         enable_event_filter = True  # 设置为 True 开启赛事筛选，设置为 False 则关闭赛事筛选
+        if filter_events == "J1联赛" or filter_events == "J2联赛":
+            filter_events = "日职"
+        elif filter_events == "墨超":
+            filter_events = "墨西联"
 
     new_data = data[
-        (
-            (data['赛事'] == filter_events) if enable_event_filter else True
-        ) &
+        ((data['赛事'] == filter_events) if enable_event_filter else True) &
         (data['终赔'].apply(
-            lambda x: all(
-                [float(x[i]) - deviation_value <= float(new_odds[i]) <= float(x[i]) + deviation_value
-                 for i in range(3)
-                 ]
-            )
-        ))
-        ]
-    if new_data.all() is None:
+            lambda x: all([float(x[i]) - deviation_value <= float(new_odds[i]) <= float(x[i]) + deviation_value for i in
+                           range(3)])))]
+
+    if new_data.empty:
         logger.warning(f"暂时没有符合条件的数据")
+        logger.warning(f"直接统计欧赔数据")
+        all_new_data = data[(data['终赔'].apply(
+            lambda x: all([float(x[i]) - deviation_value <= float(new_odds[i]) <= float(x[i]) + deviation_value
+                           for i in range(3)])))]
+        logger.info(f"{Fore.GREEN}符合条件的数据: {len(all_new_data)}{Style.RESET_ALL}\t\t"
+                    f"{Fore.GREEN} odds误差: {deviation_value}{Style.RESET_ALL}")
+        print(f"符合条件的数据: \n{all_new_data}\n")
+        eu_analyse_data = await eu_fenxi.odds_analyse(all_new_data)
+        return eu_analyse_data
     else:
         logger.info(f"{Fore.GREEN}符合条件的数据: {len(new_data)}{Style.RESET_ALL}\t\t"
                     f"{Fore.GREEN} odds误差: {deviation_value}{Style.RESET_ALL}")
-        print(f"符合条件的数据: \n{new_data}")
+        print(f"符合条件的数据: \n{new_data}\n")
         eu_analyse_data = await eu_fenxi.odds_analyse(new_data)
         return eu_analyse_data
 
@@ -471,6 +502,7 @@ async def asia_odds_analyse(fid, Events, Rounds, home_name, deviation_value, rq=
                                                                                                     home_name)
     data = pd.read_csv(data_path)
     data['终赔'] = data['终赔'].apply(lambda x: [eval(x)[0], asia_fenxi.stoa(eval(x)[1]), eval(x)[2]])
+    data['联赛'] = data['联赛'].apply(lambda x: x.replace(" ", "").strip())
 
     logger.warning(f"赛事: {Events}   主队: {home_name}   即时赔率: {new_odds}  匹配误差: {deviation_value}")
 
@@ -479,7 +511,10 @@ async def asia_odds_analyse(fid, Events, Rounds, home_name, deviation_value, rq=
     enable_event_filter = False
     if filter_events:
         enable_event_filter = True  # 设置为 True 开启赛事筛选，设置为 False 则关闭赛事筛选
-
+        if filter_events == "J1联赛" or filter_events == "J2联赛":
+            filter_events = "日职"
+        elif filter_events == "墨超":
+            filter_events = "墨西联"
     new_data = data[
         (
             (data['联赛'] == filter_events) if enable_event_filter else True
@@ -487,39 +522,47 @@ async def asia_odds_analyse(fid, Events, Rounds, home_name, deviation_value, rq=
         (data['终赔'].apply(
             lambda x: all(
                 [float(x[i]) - deviation_value <= float(new_odds[i]) <= float(x[i]) + deviation_value
-                 for i in range(3)
-                 ]
-            )
-        ))
-        ]
-    if new_data.all() is None:
+                 for i in range(3)])))]
+
+    if new_data.empty:
         logger.warning(f"暂时没有符合条件的数据")
+        logger.warning(f"直接统计亚盘的数据")
+        all_new_data = data[(data['终赔'].apply(
+            lambda x: all([float(x[i]) - deviation_value <= float(new_odds[i]) <= float(x[i]) + deviation_value
+                           for i in range(3)])))]
+        logger.info(f"{Fore.GREEN}符合条件的数据: {len(all_new_data)}{Style.RESET_ALL}\t\t"
+                    f"{Fore.GREEN} odds误差: {deviation_value}{Style.RESET_ALL}")
+        print(f"符合条件的数据: \n{all_new_data}\n")
+        asia_analyse_data = await asia_fenxi.odds_analyse(all_new_data)
+        return asia_analyse_data
     else:
         logger.info(f"{Fore.GREEN}符合条件的数据: {len(new_data)}{Style.RESET_ALL}\t\t"
                     f"{Fore.GREEN} odds误差: {deviation_value}{Style.RESET_ALL}")
-        print(f"符合条件的数据: \n{new_data}")
+        print(f"符合条件的数据: \n{new_data}\n")
         asia_analyse_data = await asia_fenxi.odds_analyse(new_data)
         return asia_analyse_data
 
 
 # 总分析
-async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_value:list, rq=0):
+async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_value: list, rq=0):
     """
     总分析
     :return:
     """
+
     asia_value = deviation_value[0]
     eu_value = deviation_value[1]
     total_analyse_data = {"base_data": await recent_data_analyse(Events, Rounds, home_name, away_name, rq),
                           "eu_odds": await eu_odds_analyse(fid, Events, Rounds, home_name, eu_value, rq),
                           "asia_odds": await asia_odds_analyse(fid, Events, Rounds, home_name, asia_value, rq)}
+
     return total_analyse_data
 
 
 if __name__ == '__main__':
     a = time.time()
     # asyncio.run(eu_odds_analyse(), debug=True)
-    asyncio.run(eu_odds_analyse(1131769, "K1联赛", "第27轮", "大邱FC"), debug=True)
-    asyncio.run(asia_odds_analyse(1131769, "K1联赛", "第27轮", "大邱FC"), debug=True)
+    asyncio.run(eu_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.618), debug=True)
+    asyncio.run(asia_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.168), debug=True)
 
     print(time.time() - a)
