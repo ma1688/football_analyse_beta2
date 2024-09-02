@@ -10,6 +10,7 @@ import time
 import pandas as pd
 from colorama import Fore, Style
 
+from get_sl_pass import query_rq
 from logger import logger
 from new_asia import get_instant_asia_odds, get_instant_europe_odds
 
@@ -312,30 +313,13 @@ class BaseAnalyseMethod:
         # ****************************************盘路分析****************************************
 
         # Convert counts to percentages
-        spf_dict = {k: (v / total_matches)for k, v in spf_dict.items()}
+        spf_dict = {k: (v / total_matches) for k, v in spf_dict.items()}
         rq_qpf_dict = {k: (v / total_matches) for k, v in rq_qpf_dict.items()}
         sb_dict = {k: (v / total_matches) for k, v in sb_dict.items()}
-        total_goals_dict = {k: (v / total_matches)for k, v in total_goals_dict.items()}
+        total_goals_dict = {k: (v / total_matches) for k, v in total_goals_dict.items()}
         score_dict = {k: (v / total_matches) for k, v in score_dict.items()}
 
         return spf_dict, rq_qpf_dict, sb_dict, total_goals_dict, score_dict, pr_dict
-
-
-class TotalAnalyse:
-    """总分析方法"""
-
-    def __init__(self):
-        self.weights = {
-            'sb_goals': {
-                '主队近期大小球': 0.2,
-                '主队主场大小球': 0.15,
-                '客队近期大小球': 0.2,
-                '客队客场大小球': 0.15,
-                '历史大小球': 0.1,
-                'eu_odds': 0.1,
-                'asia_odds': 0.1
-            }
-        }
 
 
 # 分析最近数据
@@ -543,8 +527,23 @@ async def asia_odds_analyse(fid, Events, Rounds, home_name, deviation_value, rq=
         return asia_analyse_data
 
 
+async def Diff_total_analyse(expect, home_name, rq, handicap):
+    """
+    分析北单,胜负, 即时盘口差异
+    :return:
+    """
+    fenxi = BaseAnalyseMethod(rq)
+    handicap_rq = query_rq(expect, home_name)
+    print(handicap_rq)
+    if handicap_rq:
+        "转化数值"
+        new_handicap = fenxi.stoa(handicap)
+        print(
+            f"北单盘口: {rq}  胜负过关盘口: {handicap_rq}  即时盘口: {new_handicap}  差值: {new_handicap - handicap_rq}")
+
+
 # 总分析
-async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_value: list, rq=0):
+async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_value: list, rq=0, handica="半球"):
     """
     总分析
     :return:
@@ -555,14 +554,14 @@ async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_val
     total_analyse_data = {"base_data": await recent_data_analyse(Events, Rounds, home_name, away_name, rq),
                           "eu_odds": await eu_odds_analyse(fid, Events, Rounds, home_name, eu_value, rq),
                           "asia_odds": await asia_odds_analyse(fid, Events, Rounds, home_name, asia_value, rq)}
-
+    await Diff_total_analyse(24091, home_name, rq, handica)
     return total_analyse_data
 
 
 if __name__ == '__main__':
     a = time.time()
     # asyncio.run(eu_odds_analyse(), debug=True)
-    asyncio.run(eu_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.618), debug=True)
-    asyncio.run(asia_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.168), debug=True)
-
+    # asyncio.run(eu_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.618), debug=True)
+    # asyncio.run(asia_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.168), debug=True)
+    asyncio.run(Diff_total_analyse(24091, "皇马", 0, "半球"))
     print(time.time() - a)

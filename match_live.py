@@ -8,11 +8,9 @@ import asyncio
 import random
 import re
 import time
-from datetime import datetime
 
 import chardet
 import httpx
-import pymysql
 from parsel import Selector
 from prettytable import PrettyTable
 
@@ -20,65 +18,6 @@ from asia_eu_data import get_eu_asia
 from base_data import main_base_data
 from data_analyse import total_analyse
 from logger import logger
-
-
-def insert_match_data_to_db(match_data):
-    DB_HOST = "1.14.239.79"
-    DB_PORT = 3306
-    DB_USER = "zq_data"
-    DB_PASSWORD = "zq_data1688"
-    DB_NAME = "zq_data"
-
-    connection = pymysql.connect(host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASSWORD, db=DB_NAME,
-                                 charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
-
-    try:
-        with connection.cursor() as cursor:
-            create_table_query = """
-            CREATE TABLE IF NOT EXISTS `赛事列表` (
-                `fid` VARCHAR(255),
-                `场次` INT,
-                `赛事` VARCHAR(255),
-                `轮次` VARCHAR(255),
-                `比赛时间` DATETIME,
-                `状态` VARCHAR(255) NOT NULL,
-                `主队` VARCHAR(255),
-                `比分` VARCHAR(255),
-                `客队` VARCHAR(255),
-                `让球` VARCHAR(255) NOT NULL,
-                PRIMARY KEY (`fid`)
-            ) CHARSET=utf8mb4;
-            """
-            cursor.execute(create_table_query)
-
-            insert_query = """
-            INSERT INTO `赛事列表` (`fid`, `场次`, `赛事`, `轮次`, `比赛时间`, `状态`, `主队`, `比分`, `客队`, `让球`)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            ON DUPLICATE KEY UPDATE
-                `场次` = VALUES(`场次`),
-                `赛事` = VALUES(`赛事`),
-                `轮次` = VALUES(`轮次`),
-                `比赛时间` = VALUES(`比赛时间`),
-                `状态` = VALUES(`状态`),
-                `主队` = VALUES(`主队`),
-                `比分` = VALUES(`比分`),
-                `客队` = VALUES(`客队`),
-                `让球` = VALUES(`让球`);
-            """
-
-            current_year = datetime.now().year
-            for match in match_data:
-                match_datetime = f"{current_year}-{match['比赛时间']}:00"  # Adding seconds part as '00'
-                match_status = match['状态'] if match['状态'] else "正在进行"  # Replace null or empty '状态' with "正在进行"
-                let_ball = match['让球'] if match['让球'] else "0"  # Replace null or empty '让球' with "0"
-                cursor.execute(insert_query, (
-                    match['fid'], match['场次'], match['赛事'], match['轮次'], match_datetime, match_status,
-                    match['主队'], match['比分'], match['客队'], let_ball))
-
-            connection.commit()
-
-    finally:
-        connection.close()
 
 
 def parse_html(text):
@@ -92,6 +31,7 @@ def parse_html(text):
                 r'\d+)<\/td>',
         '主队': r'<td align="right" class="p_lr01">.*?<a[^>]*>([^<]*)</a>',
         '比分': r'<td align="center" class="red">\s*(.*?)\s*</td>',
+        "即时盘口": r'data-pb="([^"]+)"',
         '客队': r'<td align="left" class="p_lr01"><a[^>]*>([^<]*)</a>',
         '让球': r'class="sp_rq">\((.*?)\)'
     }
@@ -203,7 +143,7 @@ def get_proxy(ip_num: int):
 
 
 # 请求数据
-def get_zqdc(e=24083):
+def get_zqdc(e=24091):
     """
     获取足球单场
     :return:
@@ -285,12 +225,13 @@ def main(choose_list):
         home_name = match_data.get('主队', None)
         away_name = match_data.get('客队', None)
         score = match_data.get('比分', None)
+        handicap = match_data.get('即时盘口', None)
         rq = match_data.get('让球', None)
         if rq is None:
             rq = 0
 
         # # 3. 数据分析
-        analyse_data = asyncio.run(total_analyse(fid_value, Events, Rounds, home_name, away_name, [0.0818, 0.3168], rq))
+        analyse_data = asyncio.run(total_analyse(fid_value, Events, Rounds, home_name, away_name, [0.0818, 0.3168], rq,handicap))
         print(analyse_data)
         time.sleep(0.68)
 
@@ -343,4 +284,3 @@ if __name__ == '__main__':
         else:
             logger.error("Selector is None.")
             break
-
