@@ -186,6 +186,19 @@ class KJ:
         return 0
 
 
+def Analyse_data():
+    """
+    分析数据
+    :return:
+    """
+    for i in range(24081, 24086):
+        data = pd.read_csv(f'./data/spf_pass/{i}.csv')
+        half_result = data["盘口"].value_counts()
+        half_result_sp = data["胜平负"].value_counts()
+        print(f"期数: {i}  {half_result}, {half_result_sp}")
+
+
 if __name__ == "__main__":
-    kj = KJ(24082)
+    kj = KJ(24093)
     kj.merge_data()
+    # Analyse_data()

@@ -10,11 +10,9 @@ import time
 import pandas as pd
 from colorama import Fore, Style
 
-from get_sl_pass import query_rq
+from get_sl_pass import KJ
 from logger import logger
 from new_asia import get_instant_asia_odds, get_instant_europe_odds
-
-pd.set_option('display.max_columns', 128)
 
 
 class BaseAnalyseMethod:
@@ -532,18 +530,17 @@ async def Diff_total_analyse(expect, home_name, rq, handicap):
     分析北单,胜负, 即时盘口差异
     :return:
     """
+    kj = KJ(expect)
     fenxi = BaseAnalyseMethod(rq)
-    handicap_rq = query_rq(expect, home_name)
-    print(handicap_rq)
-    if handicap_rq:
-        "转化数值"
-        new_handicap = fenxi.stoa(handicap)
-        print(
-            f"北单盘口: {rq}  胜负过关盘口: {handicap_rq}  即时盘口: {new_handicap}  差值: {new_handicap - handicap_rq}")
+    handicap_rq = kj.query_rq(home_name)
+    "转化数值"
+    new_handicap = fenxi.stoa(handicap)
+    print(
+        f"北单盘口: {rq}  胜负过关盘口: {float(handicap_rq.iloc[0])}  即时盘口: {new_handicap}  差值: {new_handicap - handicap_rq.iloc[0]}")
 
 
 # 总分析
-async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_value: list, rq=0, handica="半球"):
+async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_value: list, rq=0, handicap="半球"):
     """
     总分析
     :return:
@@ -554,7 +551,7 @@ async def total_analyse(fid, Events, Rounds, home_name, away_name, deviation_val
     total_analyse_data = {"base_data": await recent_data_analyse(Events, Rounds, home_name, away_name, rq),
                           "eu_odds": await eu_odds_analyse(fid, Events, Rounds, home_name, eu_value, rq),
                           "asia_odds": await asia_odds_analyse(fid, Events, Rounds, home_name, asia_value, rq)}
-    await Diff_total_analyse(24091, home_name, rq, handica)
+    await Diff_total_analyse(24093, home_name, rq, handicap)
     return total_analyse_data
 
 
@@ -563,5 +560,5 @@ if __name__ == '__main__':
     # asyncio.run(eu_odds_analyse(), debug=True)
     # asyncio.run(eu_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.618), debug=True)
     # asyncio.run(asia_odds_analyse(1156661, "德甲", "第1轮", "沃尔夫斯堡", 0.168), debug=True)
-    asyncio.run(Diff_total_analyse(24091, "皇马", 0, "半球"))
+    asyncio.run(Diff_total_analyse(24093, "中国", -1, "球半"))
     print(time.time() - a)

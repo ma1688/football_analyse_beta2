@@ -239,7 +239,7 @@ def main(choose_list):
 
 
 if __name__ == '__main__':
-    html = get_zqdc(24091)
+    html = get_zqdc(24093)
     selector = parse_html_content(html)
 
     while True:
@@ -277,10 +277,11 @@ if __name__ == '__main__':
                     logger.info("用户选择退出程序。")
                     break
 
-            # 检查是否需要退出外层循环
-            if choose == '++' or continue_choice.lower() != 'y':
-                logger.info("程序已退出。")
-                break
+            # # 检查是否需要退出外层循环
+            # if choose == '++' or continue_choice.lower() != 'y':
+            #     logger.info("程序已退出。")
+            #     break
         else:
             logger.error("Selector is None.")
             break
+
