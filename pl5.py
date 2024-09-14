@@ -54,6 +54,7 @@ def fetch_lottery_data(game_no, province_id, page_size, is_verify, term_limits, 
         df.to_csv("./pl5.csv", index=False, header=True, encoding='utf-8-sig')
 
 
+
 def analyse_data():
     """
     排列五分析
@@ -73,7 +74,24 @@ def analyse_data():
     matrix = matrix[:, 0:5]
     print(matrix.shape)
     print(matrix)
+    # 分析数据
+    # 1. 每个位置出现的次数
+    "实现代码 统计"
 
+    # 2. 每个位置出现的数字
+    # 3. 每个位置出现的数字的概率
+    # 4. 每个位置出现的数字的概率的分布
+
+
+def min_int():
+    """
+    寻找最小正整数解
+    :return:
+    """
+    for i in range(1000):
+        if i % 3 == 2 and i % 5 == 3 and i % 7 == 2:
+            print(f"最小正整数: {i}")
+            break
 
 if __name__ == "__main__":
     # for i in range(1):
@@ -84,3 +102,4 @@ if __name__ == "__main__":
 
     fetch_lottery_data("350133", "0", "100", "1", "0", 1)
     # analyse_data()
+    # min_int()
